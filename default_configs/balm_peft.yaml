@@ -1,0 +1,32 @@
+model_configs:
+  checkpoint_path: BALM/bdb-cleaned-r-esm2-esm2-cosinemse  # Updated checkpoint path
+  esm_model_name: facebook/esm2_t33_650M_UR50D  # New field for ESM-2 model
+  protein_model_name_or_path: facebook/esm2_t33_650M_UR50D  # Updated to ESM-2
+  proteina_model_name_or_path: facebook/esm2_t33_650M_UR50D  # Updated to ESM-2
+  model_hyperparameters:
+    learning_rate: 0.001
+    warmup_steps_ratio: 0.06
+    protein_max_seq_len: 2048  # Updated for ESM-2's sequence length
+    proteina_max_seq_len: 2048  # Updated for ESM-2's sequence length
+    gradient_accumulation_steps: 32
+    projected_size: 256
+    projected_dropout: 0.3
+    esm_layer: 33  # New parameter for ESM-2 layer selection
+    mean_pool: true  # New parameter for pooling strategy
+  protein_fine_tuning_type: projection  # Changed from lokr to projection since we're using ESM-2
+  proteina_fine_tuning_type: projection  # Changed from lokr to projection
+  # Removed PEFT hyperparameters since they're not used with ESM-2
+  loss_function: cosine_mse
+  pkd_lower_bound: -0.4
+  pkd_upper_bound: 5.0
+dataset_configs:
+  dataset_name: BindingDB_filtered
+  split_method: random
+  harmonize_affinities_mode: null
+training_configs:
+  random_seed: 1234
+  device: 0
+  patience: 75
+  epochs: 150
+  batch_size: 8
+  outputs_dir: "outputs"

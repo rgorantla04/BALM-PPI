@@ -1,0 +1,53 @@
+# Core Python Libraries and Versions
+numpy==1.23.5
+scipy==1.9.3
+pandas==2.0.1
+
+# PyTorch and ESM
+torch
+torchvision
+torchaudio
+fair-esm  # Added for ESM-2 support
+
+# Hugging Face Libraries
+datasets
+huggingface-hub
+evaluate
+
+# Deep Learning and Optimization Libraries
+accelerate
+gpytorch
+pydantic
+
+# Additional Utilities
+python-dotenv
+black
+isort
+tqdm
+wandb
+fsspec
+aiohttp
+grpcio
+matplotlib
+seaborn
+statannotations
+joblib
+
+# Machine Learning Libraries
+scikit-learn
+biopython
+
+# Chemistry and Data Handling Libraries
+pytdc
+
+# # Jupyter and Notebook Extensions
+# jupyter
+# jupyterlab
+# ipywidgets
+
+# Optional Utilities and Framework Support
+bokeh
+aiohttp
+requests
+protobuf
+xmltodict
