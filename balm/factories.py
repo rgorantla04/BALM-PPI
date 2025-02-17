@@ -29,10 +29,12 @@ def get_dataset(dataset_name, harmonize_affinities_mode=None, *args, **kwargs):
     Args:
         dataset_name (str): Name of the dataset to load.
         harmonize_affinities_mode (str, optional): Mode for harmonizing affinities in DTI datasets.
-        *args, **kwargs: Additional arguments passed to dataset classes.
+        *args, **kwargs: Additional arguments passed to dataset classes. Can include fine-tuning specific 
+                        parameters when needed.
 
     Returns:
-        Dataset: The loaded dataset with protein sequences ready for ESM-2 processing.
+        Dataset: The loaded dataset with protein sequences ready for model processing 
+                (both frozen and fine-tuning approaches).
     """
     if dataset_name.startswith("DTI_"):
         dti_dataset_name = dataset_name.replace("DTI_", "")

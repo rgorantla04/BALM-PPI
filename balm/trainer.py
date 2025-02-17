@@ -23,6 +23,7 @@ from balm import factories
 from balm.datasets.utils import ESMDataCollator
 from transformers import AutoTokenizer  # Remove this
 from balm.tokenization import pre_tokenize_unique_entities, tokenize_with_lookup  # Remove these
+from peft import get_peft_model, PeftConfig
 
 class Trainer:
     """
@@ -71,23 +72,32 @@ class Trainer:
         self.wandb_project = wandb_project
 
         # Load ESM-2 model and alphabet instead of tokenizers
-        self.esm_model, self.alphabet = self._load_esm_model()
+        self.model = self._initialize_model(configs)
         self.batch_converter = self.alphabet.get_batch_converter()
         # Determine which model to use based on fine-tuning type
-        if (
-            self.model_configs.protein_fine_tuning_type == "baseline"
-            and self.model_configs.proteina_fine_tuning_type == "baseline"
-        ):
-            self.model = BaselineModel(self.model_configs)
+        if configs.model_configs.fine_tuning_method:
+            self.model = BALM(configs.model_configs)  # BALM handles PEFT
+        elif (configs.model_configs.protein_fine_tuning_type == "baseline"
+              and configs.model_configs.proteina_fine_tuning_type == "baseline"):
+            self.model = BaselineModel(configs.model_configs)
         else:
-            self.model = BALM(self.model_configs)
+            self.model = BALM(configs.model_configs)
 
         self.train_dataloader = None
         self.valid_dataloader = None
         self.test_dataloader = None
 
         self._setup_run_name()
-
+    def _initialize_model(self, configs):
+        if configs.model_configs.fine_tuning_method:
+            model = BALM(configs.model_configs)  # BALM handles PEFT
+        elif (configs.model_configs.protein_fine_tuning_type == "baseline"
+              and configs.model_configs.proteina_fine_tuning_type == "baseline"):
+            model = BaselineModel(configs.model_configs)
+        else:
+            model = BALM(configs.model_configs)
+        return model
+    
     def _load_esm_model(self):
         """Load the ESM-2 model and alphabet"""
         model, alphabet = esm.pretrained.esm2_t33_650M_UR50D()
@@ -222,30 +232,65 @@ class Trainer:
 
     def _setup_run_name(self):
         """
-        Setup the run name and group name for the Weights & Biases tracker based on
-        the dataset, split method, and model hyperparameters.
+        Setup the run name and group name for the Weights & Biases tracker.
+        Handles both traditional fine-tuning and PEFT methods.
         """
-        protein_peft_hyperparameters = (
-            self.model_configs.protein_peft_hyperparameters
-        )
-        proteina_peft_hyperparameters = self.model_configs.proteina_peft_hyperparameters
+        # Method abbreviations for cleaner names
+        METHOD_ABBREV = {
+            "lora": "lr",
+            "loha": "lh",
+            "lokr": "lk",
+            "ia3": "ia"
+        }
 
-        # Group name depends on the dataset and split method
+        # Group name remains the same
         self.group_name = f"{self.dataset_configs.dataset_name}_{self.dataset_configs.split_method}"
 
-        # Run name depends on the fine-tuning type and other relevant hyperparameters
+        # Collect hyperparameters for run name
         hyperparams = []
-        hyperparams += [f"protein_{self.model_configs.protein_fine_tuning_type}"]
-        if protein_peft_hyperparameters:
-            for key, value in protein_peft_hyperparameters.items():
-                if key not in ["target_modules", "feedforward_modules"]:
-                    hyperparams += [f"{key}_{value}"]
-        hyperparams += [f"proteina_{self.model_configs.proteina_fine_tuning_type}"]
-        if proteina_peft_hyperparameters:
-            for key, value in proteina_peft_hyperparameters.items():
-                if key not in ["target_modules", "feedforward_modules"]:
-                    hyperparams += [f"{key}_{value}"]
-        self.run_name = "_".join(hyperparams)
+
+        # Handle protein model configuration
+        protein_config = []
+        if hasattr(self.model_configs, "protein_peft_config") and self.model_configs.protein_peft_config:
+            config = self.model_configs.protein_peft_config
+            method_abbr = METHOD_ABBREV.get(config.method, config.method)
+            protein_config.append(f"prot_{method_abbr}")
+
+            # Add relevant PEFT parameters
+            if hasattr(config, "rank"):
+                protein_config.append(f"r{config.rank}")
+            if hasattr(config, "alpha"):
+                protein_config.append(f"a{config.alpha}")
+            if hasattr(config, "dropout"):
+                protein_config.append(f"d{config.dropout}")
+        else:
+            # Traditional fine-tuning type
+            protein_config.append(f"prot_{self.model_configs.protein_fine_tuning_type}")
+
+        hyperparams.extend(protein_config)
+
+        # Handle proteina model configuration
+        proteina_config = []
+        if hasattr(self.model_configs, "proteina_peft_config") and self.model_configs.proteina_peft_config:
+            config = self.model_configs.proteina_peft_config
+            method_abbr = METHOD_ABBREV.get(config.method, config.method)
+            proteina_config.append(f"prota_{method_abbr}")
+
+            # Add relevant PEFT parameters
+            if hasattr(config, "rank"):
+                proteina_config.append(f"r{config.rank}")
+            if hasattr(config, "alpha"):
+                proteina_config.append(f"a{config.alpha}")
+            if hasattr(config, "dropout"):
+                proteina_config.append(f"d{config.dropout}")
+        else:
+            # Traditional fine-tuning type
+            proteina_config.append(f"prota_{self.model_configs.proteina_fine_tuning_type}")
+
+        hyperparams.extend(proteina_config)
+
+        # Join all parameters with underscores
+        self.run_name = "_".join(str(param) for param in hyperparams)
 
     def setup_training(self):
         """
@@ -273,18 +318,25 @@ class Trainer:
         self.accelerator.wait_for_everyone()
 
         if self.train_dataloader is not None:
-            # Initialize optimizer with parameters that require gradients
-            self.optimizer = AdamW(
-                params=[
-                    param
-                    for name, param in self.model.named_parameters()
-                    if param.requires_grad
-                    and "noise_sigma" not in name  # Handle Balanced MSE loss
-                ],
-                lr=self.model_configs.model_hyperparameters.learning_rate,
-            )
+            param_groups = []
+            # PEFT parameters if present
+            peft_params = [p for n, p in self.model.named_parameters() if 'peft' in n]
+            if peft_params:
+                param_groups.append({
+                    'params': peft_params,
+                    'lr': self.model_configs.model_hyperparameters.learning_rate * 10
+                })
+            # Projection parameters
+            proj_params = [p for n, p in self.model.named_parameters() 
+                          if 'projection' in n and p.requires_grad]
+            if proj_params:
+                param_groups.append({
+                    'params': proj_params,
+                    'lr': self.model_configs.model_hyperparameters.learning_rate
+                })
+            self.optimizer = AdamW(param_groups)
 
-
+            
             # Setup learning rate scheduler
             num_training_steps = (
                 len(self.train_dataloader) * self.training_configs.epochs
@@ -360,111 +412,141 @@ class Trainer:
         }
 
     def train(self):
-        """
-        Execute the training loop, handling early stopping, checkpoint saving, and logging metrics.
-        """
+        """Execute the training loop with PEFT support"""
         if self.train_dataloader is None:
             epoch = 0
             best_checkpoint_dir = None
         else:
-            best_loss = 999999999
+            best_loss = float('inf')
             patience = self.training_configs.patience
             eval_train_every_n_epochs = self.training_configs.epochs // 4
-            epochs_no_improve = 0  # Initialize early stopping counter
+            epochs_no_improve = 0
             best_checkpoint_dir = ""
 
-            print("Trainable params")
+            # Enhanced parameter reporting
+            print("Parameter groups:")
+            param_counts = {
+                'peft': 0,
+                'projection': 0,
+                'base': 0
+            }
             for name, param in self.model.named_parameters():
-                if param.requires_grad:
-                    print(name)
+                if not param.requires_grad:
+                    continue
+                if 'peft' in name:
+                    param_counts['peft'] += param.numel()
+                elif 'projection' in name:
+                    param_counts['projection'] += param.numel()
+                else:
+                    param_counts['base'] += param.numel()
+            for group, count in param_counts.items():
+                print(f"{group}: {count:,} parameters")
 
             for epoch in range(self.training_configs.epochs):
                 self.model.train()
+                total_train_loss = 0
+                total_samples = 0
 
-                num_train_steps = len(self.train_dataloader)
+                # Progress bar with enhanced stats
                 progress_bar = tqdm(
-                    total=int(num_train_steps // self.gradient_accumulation_steps),
+                    total=int(len(self.train_dataloader) // self.gradient_accumulation_steps),
                     position=0,
                     leave=True,
                     disable=not self.accelerator.is_local_main_process,
                 )
-                total_train_loss = 0
+
                 for train_step, batch in enumerate(self.train_dataloader):
                     with self.accelerator.accumulate(self.model):
                         outputs = self.model(batch)
                         loss = outputs["loss"]
-
-                        # Backpropagation
                         self.accelerator.backward(loss)
-                        self.optimizer.step()
-                        self.lr_scheduler.step()
-                        self.model.zero_grad()
-                        self.optimizer.zero_grad()
 
-                        progress_bar.set_description(f"Epoch {epoch}; Loss: {loss:.4f}")
-                        total_train_loss += loss.detach().float()
+                        # Track gradient norms for debugging
+                        grad_norm = self.accelerator.clip_grad_norm_(
+                            self.model.parameters(), 
+                            max_norm=1.0
+                    )
 
-                    # Checks if the accelerator has performed an optimization step behind the scenes
+                    self.optimizer.step()
+                    self.model.zero_grad()
+
+                    # Update progress with enhanced info
+                    progress_bar.set_description(
+                        f"Epoch {epoch}; Loss: {loss:.4f}; Grad: {grad_norm:.4f}"
+                    )
+                    total_train_loss += loss.detach().float()
+                    total_samples += 1
+
                     if self.accelerator.sync_gradients:
                         progress_bar.update(1)
 
+                # Proper scheduler stepping (once per epoch)
+                self.lr_scheduler.step()
+
+                # Enhanced metric logging
+                self.log_training_stats(
+                    epoch=epoch,
+                    loss=total_train_loss/total_samples,
+                    grad_norm=grad_norm,
+                    param_counts=param_counts
+                )
+
+                # Evaluation
                 if (epoch + 1) % eval_train_every_n_epochs == 0:
                     train_metrics = self.test("train")
                 else:
                     train_metrics = {
                         "train/loss": total_train_loss / len(self.train_dataloader)
                     }
-                # At the end of an epoch, compute validation metrics
                 valid_metrics = self.test("valid")
 
+                # Checkpoint handling with PEFT support
                 if valid_metrics:
                     current_loss = valid_metrics["valid/loss"]
                 else:
-                    # Just train until the last epoch
                     current_loss = best_loss
+
                 if current_loss <= best_loss:
                     best_loss = current_loss
                     epochs_no_improve = 0
-                    # Save the model
                     best_checkpoint_dir = f"step_{epoch}"
-                    self.accelerator.save_state(
-                        os.path.join(
-                            self.outputs_dir, "checkpoint", best_checkpoint_dir
-                        )
+                    # Use enhanced checkpoint saving
+                    self.save_checkpoint(
+                        os.path.join(self.outputs_dir, "checkpoint", best_checkpoint_dir),
+                        epoch
                     )
                 else:
                     epochs_no_improve += 1
-
-                self.accelerator.log(train_metrics | valid_metrics, step=epoch)
 
                 if epochs_no_improve >= patience:
                     print(f"Early stopping triggered at epoch {epoch}")
                     break
 
-            # Reload the best model checkpoint
+            # Load best checkpoint with PEFT support
             if best_checkpoint_dir:
-                self.accelerator.load_state(
-                    os.path.join(self.outputs_dir, "checkpoint", best_checkpoint_dir)
+                checkpoint_path = os.path.join(
+                    self.outputs_dir, "checkpoint", best_checkpoint_dir
                 )
+                self.load_checkpoint(checkpoint_path)
                 self.accelerator.wait_for_everyone()
 
-        # Compute test metrics and log results
+        # Test evaluation and artifact creation
         test_metrics = self.test("test", save_prediction=True)
         self.accelerator.log(test_metrics, step=epoch)
 
-        # For specific datasets, also save predictions for train and validation splits
         if self.dataset_configs.dataset_name == "BindingDB_filtered":
-            train_metrics = self.test("train", save_prediction=True)
-            self.accelerator.log(train_metrics, step=epoch)
-            valid_metrics = self.test("valid", save_prediction=True)
-            self.accelerator.log(valid_metrics, step=epoch)
+            for split in ["train", "valid"]:
+                metrics = self.test(split, save_prediction=True)
+                self.accelerator.log(metrics, step=epoch)
 
+        # Enhanced artifact saving with PEFT config
         if best_checkpoint_dir:
-            print("Create a WandB artifact from embedding")
             artifact = wandb.Artifact(best_checkpoint_dir, type="model")
             artifact.add_dir(
                 os.path.join(self.outputs_dir, "checkpoint", best_checkpoint_dir)
             )
+            if hasattr(self.model_configs, 'peft_config'):
+                artifact.metadata = {'peft_config': self.model_configs.peft_config.dict()}
             wandb.log_artifact(artifact)
 
     def test(self, split: str, save_prediction=False):
@@ -553,3 +635,27 @@ class Trainer:
             wandb.log_artifact(artifact)
 
         return metrics
+    def save_checkpoint(self, dir_path, epoch):
+        """Save model checkpoint with PEFT support"""
+        # Save PEFT state if applicable
+        if hasattr(self.model, 'save_peft_state'):
+            peft_path = os.path.join(dir_path, 'peft_state')
+            self.model.save_peft_state(peft_path)
+
+        # Save complete state
+        state_path = os.path.join(dir_path, f'checkpoint_{epoch}')
+        self.accelerator.save_state(state_path)
+        return state_path
+    
+    def log_training_stats(self, epoch, loss):
+        stats = {
+            'train/loss': loss,
+            'train/lr': self.optimizer.param_groups[0]['lr'],
+        }
+        
+        # Add PEFT-specific stats
+        if hasattr(self.model, 'get_peft_state_size'):
+            peft_stats = self.model.get_peft_state_size()
+            stats.update(peft_stats)
+        
+        self.accelerator.log(stats, step=epoch)

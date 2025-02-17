@@ -1,7 +1,7 @@
 import os
 import random
 from datetime import datetime
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict
 
 import numpy as np
 import torch
@@ -12,26 +12,68 @@ from transformers import set_seed
 from .configs import Configs
 
 
-def setup_experiment_folder(outputs_dir: str) -> Tuple[str, str]:
+def setup_experiment_folder(outputs_dir: str) -> Tuple[str, str, str]:
     """
-    Utility function to create and setup the experiment output directory.
-    Return both output and checkpoint directories.
-
-    Args:
-        outputs_dir (str): The parent directory to store
-            all outputs across experiments.
-
+    Setup experiment directories including PEFT configurations.
+    
     Returns:
-        Tuple[str, str]:
-            outputs_dir: Directory of the outputs (checkpoint_dir and logs)
-            checkpoint_dir: Directory of the training checkpoints
+        Tuple[str, str, str]: outputs_dir, checkpoint_dir, peft_config_dir
     """
     now = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
     outputs_dir = os.path.join(outputs_dir, now)
     checkpoint_dir = os.path.join(outputs_dir, "checkpoint")
+    peft_config_dir = os.path.join(checkpoint_dir, "peft_config")
+    
     os.makedirs(checkpoint_dir, exist_ok=True)
+    os.makedirs(peft_config_dir, exist_ok=True)
+    
+    return outputs_dir, checkpoint_dir, peft_config_dir
 
-    return outputs_dir
+def count_parameters_by_type(model: nn.Module) -> Dict[str, int]:
+    """
+    Count parameters by type (base, PEFT, other trainable).
+    """
+    stats = {
+        "base_params": 0,
+        "peft_params": 0,
+        "other_trainable": 0,
+        "total_trainable": 0
+    }
+    
+    for name, param in model.named_parameters():
+        if hasattr(param, "is_peft_param"):
+            stats["peft_params"] += param.numel()
+        elif "projection" in name:
+            stats["other_trainable"] += param.numel()
+        else:
+            stats["base_params"] += param.numel()
+            
+        if param.requires_grad:
+            stats["total_trainable"] += param.numel()
+            
+    return stats
+
+def setup_training_environment(
+    configs: Configs,
+    device: Optional[str] = None,
+    seed: int = 42
+) -> Tuple[torch.device, bool]:
+    """
+    Comprehensive training environment setup.
+    """
+    # Setup device
+    device, use_half = setup_esm_device(device)
+    
+    # Setup random seed
+    setup_random_seed(seed)
+    
+    # Enable gradient checkpointing if fine-tuning
+    if hasattr(configs.model_configs, 'fine_tuning_method') and configs.model_configs.fine_tuning_method:
+        torch.backends.cudnn.benchmark = False
+        if use_half:
+            print("Using half precision with fine-tuning")
+    
+    return device, use_half
 
 
 def setup_esm_device(device: Optional[str] = None) -> Tuple[torch.device, bool]:
@@ -113,15 +155,19 @@ def load_yaml(filepath: str) -> dict:
 
 def save_training_configs(configs: Configs, output_dir: str):
     """
-    Save training config including ESM-2 specific settings
-    
-    Args:
-        configs (Configs): Configs including ESM-2 model settings
-        output_dir (str): Path to the output directory
+    Save training configs including PEFT settings.
     """
+    # Save main config
+    config_dict = configs.dict()
+    
+    # Handle PEFT config separately
+    if hasattr(configs.model_configs, 'fine_tuning_method') and configs.model_configs.fine_tuning_method:
+        peft_config = get_peft_config_to_save(configs.model_configs.fine_tuning_config)
+        config_dict['peft_config'] = peft_config
+    
     filepath = os.path.join(output_dir, "configs.yaml")
     with open(filepath, "w") as file:
-        _ = yaml.dump(configs.dict(), file)
+        yaml.dump(config_dict, file)
 
 
 def delete_files_in_directory(directory: str):

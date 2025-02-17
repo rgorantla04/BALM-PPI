@@ -6,16 +6,16 @@ import esm
 from balm.configs import ModelConfigs
 from balm.models.base_model import BaseModel
 
-
 class BaselineModel(BaseModel):
     """
     BaselineModel model extends BaseModel to concatenate protein encodings from ESM-2.
     This model takes the embeddings from both proteins, concatenates them, and processes them further.
+    When fine-tuning is enabled, the embeddings are trainable through PEFT methods.
 
     Attributes:
         model_configs (ModelConfigs): The configuration object for the model.
-        protein_model: The ESM-2 model for first protein.
-        proteina_model: The ESM-2 model for second protein.
+        protein_model: The ESM-2 model for first protein (potentially fine-tuned).
+        proteina_model: The ESM-2 model for second protein (potentially fine-tuned).
         protein_embedding_size (int): The size of the first protein embeddings (1280 for ESM-2).
         proteina_embedding_size (int): The size of the second protein embeddings (1280 for ESM-2).
     """
@@ -23,14 +23,14 @@ class BaselineModel(BaseModel):
     def __init__(
         self,
         model_configs: ModelConfigs,
-        protein_embedding_size=1280,  # ESM-2 embedding size
-        proteina_embedding_size=1280,  # ESM-2 embedding size
+        protein_embedding_size=1280,
+        proteina_embedding_size=1280,
     ):
         super(BaselineModel, self).__init__(
             model_configs, protein_embedding_size, proteina_embedding_size
         )
 
-        # concatenating layers
+        # Projection layers
         self.linear_projection = nn.Linear(
             self.protein_embedding_size + self.proteina_embedding_size,
             model_configs.model_hyperparameters.projected_size,
@@ -39,39 +39,27 @@ class BaselineModel(BaseModel):
         self.out = nn.Linear(model_configs.model_hyperparameters.projected_size, 1)
 
         self.print_trainable_params()
-
         self.loss_fn = nn.MSELoss()
 
     def forward(self, batch_input, **kwargs):
-        """
-        Forward pass for the BaselineModel using ESM-2.
-
-        This method takes the input sequences for both proteins, obtains their ESM-2 embeddings,
-        concatenates them, and processes them further.
-
-        Args:
-            batch_input (dict): Dictionary containing:
-                - protein_sequences: List of sequences for first protein
-                - proteina_sequences: List of sequences for second protein
-                - labels: Optional target values
-
-        Returns:
-            dict: Dictionary containing embeddings, logits, and optional loss.
-        """
         forward_output = {}
 
-        # Process first protein sequences
+        # Process sequences
         protein_data = [(str(i), seq) for i, seq in enumerate(batch_input["protein_sequences"])]
-        _, _, protein_tokens = self.batch_converter(protein_data)
-        protein_tokens = protein_tokens.to(self.device)
-
-        # Process second protein sequences
         proteina_data = [(str(i), seq) for i, seq in enumerate(batch_input["proteina_sequences"])]
+        
+        _, _, protein_tokens = self.batch_converter(protein_data)
         _, _, proteina_tokens = self.batch_converter(proteina_data)
+        
+        protein_tokens = protein_tokens.to(self.device)
         proteina_tokens = proteina_tokens.to(self.device)
 
-        # Get embeddings from ESM-2 models
-        with torch.no_grad():
+        # Get embeddings - conditional on fine-tuning mode
+        if self.fine_tuning_method is None:
+            with torch.no_grad():
+                protein_results = self.protein_model(protein_tokens, repr_layers=[33])
+                proteina_results = self.proteina_model(proteina_tokens, repr_layers=[33])
+        else:
             protein_results = self.protein_model(protein_tokens, repr_layers=[33])
             proteina_results = self.proteina_model(proteina_tokens, repr_layers=[33])
 

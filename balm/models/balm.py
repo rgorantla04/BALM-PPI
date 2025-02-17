@@ -17,11 +17,6 @@ class BALM(BaseModel):
             model_configs, protein_embedding_size, proteina_embedding_size
         )
 
-        # Load ESM-2 models
-        self.protein_model, self.alphabet = esm.pretrained.esm2_t33_650M_UR50D()
-        self.proteina_model, _ = esm.pretrained.esm2_t33_650M_UR50D()
-        self.batch_converter = self.alphabet.get_batch_converter()
-
         # Modified projection layers with residual connections
         self.protein_projection = nn.Sequential(
             nn.Linear(1280, 512),
@@ -39,8 +34,6 @@ class BALM(BaseModel):
             nn.Linear(512, 256)
         )
 
-        # Initialize with appropriate scale
-        self.temperature = nn.Parameter(torch.ones(1) * 0.1)
         self.loss_fn = nn.MSELoss()
 
     def forward(self, batch_input, **kwargs):
@@ -56,8 +49,12 @@ class BALM(BaseModel):
         protein_tokens = protein_tokens.to(self.device)
         proteina_tokens = proteina_tokens.to(self.device)
 
-        # Get embeddings from single layer
-        with torch.no_grad():
+        # Get embeddings - conditional on fine-tuning mode
+        if self.fine_tuning_method is None:
+            with torch.no_grad():
+                protein_results = self.protein_model(protein_tokens, repr_layers=[33])
+                proteina_results = self.proteina_model(proteina_tokens, repr_layers=[33])
+        else:
             protein_results = self.protein_model(protein_tokens, repr_layers=[33])
             proteina_results = self.proteina_model(proteina_tokens, repr_layers=[33])
 
@@ -72,7 +69,7 @@ class BALM(BaseModel):
         protein_projected = F.normalize(protein_projected, p=2, dim=-1)
         proteina_projected = F.normalize(proteina_projected, p=2, dim=-1)
 
-        # Compute scaled cosine similarity
+        # Compute cosine similarity
         cosine_similarity = F.cosine_similarity(protein_projected, proteina_projected)
 
         if "labels" in batch_input and batch_input["labels"] is not None:

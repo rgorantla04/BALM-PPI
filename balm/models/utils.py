@@ -1,15 +1,16 @@
-from typing import Tuple
+from typing import Tuple, Optional
 import os
 import torch
 from huggingface_hub import hf_hub_download
-import esm  # Add ESM import
+import esm
+from peft import get_peft_model
 
 from balm.configs import ModelConfigs
 from balm.models.base_model import BaseModel
 
 def load_trained_model(model: BaseModel, model_configs: ModelConfigs, is_training: bool) -> BaseModel:
     """
-    Load pre-trained ESM-2 models for both proteins and apply necessary adjustments.
+    Load and configure ESM-2 models with optional fine-tuning support.
 
     Args:
         model (BaseModel): The model instance to load the checkpoint into.
@@ -17,41 +18,77 @@ def load_trained_model(model: BaseModel, model_configs: ModelConfigs, is_trainin
         is_training (bool): Flag indicating whether the model is being loaded for training or evaluation.
 
     Returns:
-        BaseModel: The model loaded with ESM-2 models and prepared for either training or evaluation.
+        BaseModel: The configured model ready for training or evaluation.
     """
-    
     print(f"Loading ESM-2 models for both proteins")
     
-    # Load ESM-2 model for both proteins (using the same architecture)
+    # Load ESM-2 models
     protein_model, alphabet = esm.pretrained.esm2_t33_650M_UR50D()
-    proteina_model, _ = esm.pretrained.esm2_t33_650M_UR50D()  # Using same model for second protein
-
+    proteina_model, _ = esm.pretrained.esm2_t33_650M_UR50D()
+    
     # Move models to appropriate device
     protein_model = protein_model.to(model.device)
     proteina_model = proteina_model.to(model.device)
-
+    
     # Set up batch converter
     batch_converter = alphabet.get_batch_converter()
-
-    # Assign models to the BALM model
-    model.protein_model = protein_model
-    model.proteina_model = proteina_model
-    model.batch_converter = batch_converter
-
-    # Configure the model for training or evaluation
-    if is_training:
-        # Freeze ESM-2 base parameters and only train projection layers
-        for name, params in model.named_parameters():
-            if "projection" not in name:
-                params.requires_grad = False
-        model.print_trainable_params()
+    
+    # Configure models based on fine-tuning settings
+    if hasattr(model_configs, 'fine_tuning_method') and model_configs.fine_tuning_method:
+        try:
+            # Apply PEFT configuration from BaseModel
+            model.protein_model = model._setup_peft_model(protein_model)
+            model.proteina_model = model._setup_peft_model(proteina_model)
+        except Exception as e:
+            raise ValueError(f"Error applying fine-tuning configuration: {str(e)}")
     else:
-        # Freeze all parameters for evaluation
-        for name, params in model.named_parameters():
-            params.requires_grad = False
+        # Traditional frozen approach
+        model.protein_model = protein_model
+        model.proteina_model = proteina_model
+        if is_training:
+            # Only train projection layers
+            for name, params in model.named_parameters():
+                if "projection" not in name:
+                    params.requires_grad = False
+    
+    model.batch_converter = batch_converter
+    
+    # Load checkpoint if provided
+    if model_configs.checkpoint_path:
+        load_checkpoint_state(model, model_configs.checkpoint_path)
+    
+    # Set evaluation mode if not training
+    if not is_training:
         model.eval()
-
+        for param in model.parameters():
+            param.requires_grad = False
+    
+    # Print parameter info
+    model.print_trainable_params()
+    
     return model
+
+def load_checkpoint_state(model: BaseModel, checkpoint_path: str):
+    """
+    Load model checkpoint, handling both standard and PEFT states.
+
+    Args:
+        model (BaseModel): Model instance to load state into.
+        checkpoint_path (str): Path to the checkpoint directory or file.
+    """
+    if os.path.isdir(checkpoint_path):
+        # Load PEFT state if available
+        if hasattr(model.protein_model, 'load_pretrained'):
+            model.protein_model.load_pretrained(checkpoint_path + "_protein")
+            model.proteina_model.load_pretrained(checkpoint_path + "_proteina")
+        
+        # Load projection layers state
+        state_dict = torch.load(f"{checkpoint_path}_state.pt")
+        model.load_state_dict(state_dict['projection_state'], strict=False)
+    else:
+        # Load complete state dict
+        state_dict = torch.load(checkpoint_path)
+        model.load_state_dict(state_dict, strict=False)
 
 def load_pretrained_pkd_bounds(checkpoint_path: str) -> Tuple[float, float]:
     """

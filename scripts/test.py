@@ -19,7 +19,7 @@ from balm import common_utils
 from balm.configs import Configs
 from balm.dataset import DataCollatorWithPadding
 from balm.metrics import get_ci, get_pearson, get_rmse, get_spearman
-from balm.model import BindingAffinityModel
+from balm.model import BALM, BaselineModel
 from balm.tokenization import pre_tokenize_unique_entities, tokenize_with_lookup
 
 
@@ -41,70 +41,46 @@ def argument_parser():
 
 
 def get_checkpoint_name(configs: Configs):
-    """
-    Constructs the checkpoint name based on the configuration hyperparameters.
-
-    Args:
-        configs (Configs): Configuration object containing model settings.
-
-    Returns:
-        str: The constructed checkpoint name.
-    """
-    protein_peft_hyperparameters = configs.model_configs.protein_peft_hyperparameters
-    proteina_peft_hyperparameters = configs.model_configs.proteina_peft_hyperparameters
-
-    # Build the run name based on the fine-tuning types and hyperparameters
+    # Method abbreviations
+    METHOD_ABBREV = {
+        "lora": "lr",
+        "loha": "lh",
+        "lokr": "lk",
+        "ia3": "ia"
+    }
+    
     hyperparams = []
-    hyperparams += [f"protein_{configs.model_configs.protein_fine_tuning_type}"]
-    if protein_peft_hyperparameters:
-        for key, value in protein_peft_hyperparameters.items():
-            if key not in ["target_modules", "feedforward_modules"]:
-                hyperparams += [f"{key}_{value}"]
-    hyperparams += [f"proteina_{configs.model_configs.proteina_fine_tuning_type}"]
-    if proteina_peft_hyperparameters:
-        for key, value in proteina_peft_hyperparameters.items():
-            if key not in ["target_modules", "feedforward_modules"]:
-                hyperparams += [f"{key}_{value}"]
+    if configs.model_configs.peft_configs.enabled:
+        method = configs.model_configs.peft_configs.protein.method
+        hyperparams.append(f"peft_{METHOD_ABBREV.get(method, method)}")
+        hyperparams.append(f"r{configs.model_configs.peft_configs.protein.rank}")
+    
     hyperparams += [
         f"lr_{configs.model_configs.model_hyperparameters.learning_rate}",
-        f"dropout_{configs.model_configs.model_hyperparameters.projected_dropout}",
         f"dim_{configs.model_configs.model_hyperparameters.projected_size}",
     ]
-    run_name = "_".join(hyperparams)
-    return run_name
+    return "_".join(hyperparams)
 
 
 def load_model(configs, checkpoint_dir):
-    """
-    Loads the model from the specified checkpoint directory.
-
-    Args:
-        configs (Configs): Configuration object containing model settings.
-        checkpoint_dir (str): Directory where model checkpoints are stored.
-
-    Returns:
-        BindingAffinityModel: The loaded and prepared model.
-    """
-    model = BindingAffinityModel(configs.model_configs)
-    model = model.to("mps")
+    # Initialize appropriate model
+    if configs.model_configs.fine_tuning_method:
+        model = BALM(configs.model_configs)
+    else:
+        model = BaselineModel(configs.model_configs)
+    
+    # Move to appropriate device
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = model.to(device)
+    
+    # Load checkpoint
     checkpoint_name = get_checkpoint_name(configs)
-    print(f"Loading checkpoint from {os.path.join(checkpoint_dir, checkpoint_name)}")
     checkpoint = torch.load(
         os.path.join(checkpoint_dir, checkpoint_name, "pytorch_model.bin"),
-        map_location=torch.device("mps"),
+        map_location=device
     )
-
     model.load_state_dict(checkpoint)
-    model = model.eval()
-
-    # Merge PEFT and base model
-    if configs.model_configs.protein_fine_tuning_type in ["lora", "lokr", "loha", "ia3"]:
-        model.protein_model.merge_and_unload()
-    if configs.model_configs.proteina_fine_tuning_type in ["lora", "lokr", "loha", "ia3"]:
-        model.proteina_model.merge_and_unload()
-
-    return model
-
+    return model.eval()
 
 def load_tokenizers(configs):
     """
@@ -122,58 +98,23 @@ def load_tokenizers(configs):
     return protein_tokenizer, proteina_tokenizer
 
 
-def load_data(
-    test_data,
-    batch_size,
-    protein_tokenizer,
-    proteina_tokenizer,
-    protein_max_seq_len,
-    proteina_max_seq_len,
-):
-    """
-    Loads and prepares the test dataset for evaluation.
-
-    Args:
-        test_data (str): Path to the test data CSV file.
-        batch_size (int): Batch size for data loading.
-        protein_tokenizer (PreTrainedTokenizer): Tokenizer for protein sequences.
-        proteina_tokenizer (PreTrainedTokenizer): Tokenizer for proteina sequences.
-        protein_max_seq_len (int): Maximum sequence length for protein tokens.
-        proteina_max_seq_len (int): Maximum sequence length for proteina tokens.
-
-    Returns:
-        DataLoader: DataLoader for the prepared test dataset.
-    """
+def load_data(test_data, batch_size, protein_max_seq_len, proteina_max_seq_len):
     df = pd.read_csv(test_data)
-    protein_tokenized_dict, proteina_tokenized_dict = pre_tokenize_unique_entities(
-        df,
-        protein_tokenizer,
-        proteina_tokenizer,
-    )
-
-    dataset = Dataset.from_pandas(df).map(
-        lambda x: tokenize_with_lookup(x, protein_tokenized_dict, proteina_tokenized_dict),
-    )
-
-    data_collator = DataCollatorWithPadding(
-        protein_tokenizer=protein_tokenizer,
-        proteina_tokenizer=proteina_tokenizer,
-        padding="max_length",
+    dataset = Dataset.from_pandas(df)
+    
+    data_collator = ESMDataCollator(
+        batch_converter=model.batch_converter,
         protein_max_length=protein_max_seq_len,
         proteina_max_length=proteina_max_seq_len,
-        return_tensors="pt",
     )
-
-    print(f"Setup Train DataLoader")
-    dataloader = DataLoader(
+    
+    return DataLoader(
         dataset,
-        shuffle=True,
+        shuffle=False,  # Changed to False for testing
         collate_fn=data_collator,
         batch_size=batch_size,
         pin_memory=True,
     )
-
-    return dataloader
 
 
 def compute_metrics(labels, predictions, pkd_upper_bound, pkd_lower_bound):
