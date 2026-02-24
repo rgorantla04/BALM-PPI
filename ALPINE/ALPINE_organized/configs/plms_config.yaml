@@ -1,0 +1,80 @@
+# PLMs Ablation Study Configuration
+# Tests different protein language models with Model-1 architecture (Cold target split)
+# Projection sizes [256, 512, 1024] are run per model via --projected_size argument.
+
+experiment_name: "PLMs_Ablation_Study"
+description: "Ablation study comparing different protein language models with BALMProjectionHead"
+
+# Data Configuration
+data:
+  dataset_path: "C:\\Users\\hs494\\Desktop\\ALPINE_organized\\data\\PPB_Affinity_Sequences_Final (version 1).csv"
+  cache_dir: "cache"
+
+# Data Splitting Configuration (Cold target split only, matching all PLM notebooks)
+data_split:
+  cv_strategy: "cold_target"
+  n_folds: 5
+  seed: 42
+
+# Training Configuration (same for all PLMs, matching notebook hyperparameters)
+training:
+  epochs: 30
+  # batch_size is set per-PLM below; the script uses plm.batch_size
+  learning_rate: 1.0e-4
+  weight_decay: 0.01   # torch.optim.AdamW default (matches notebooks)
+  patience: 15
+  optimizer: "adamw"
+
+# Device Configuration
+device:
+  type: "auto"
+  num_workers: 0   # Keep 0 for safety with multi-PLM loading
+
+# Reproducibility
+reproducibility:
+  seed: 42
+
+# Output Configuration
+output:
+  results_dir: "results/plms_ablation"
+  save_predictions: true
+  plot_results: true
+
+# PLM-specific configurations
+# model_name, embedding_size (dynamic from model), batch_size from notebooks
+plms:
+
+  esm2:
+    name: "ESM-2"
+    plm_key: "esm2"
+    model_name: "facebook/esm2_t33_650M_UR50D"
+    batch_size: 16          # matches ESM_2_CLS notebook
+    projected_sizes: [256, 512, 1024]
+
+  ablang2:
+    name: "Ablang2"
+    plm_key: "ablang2"
+    model_name: "hemantn/ablang2"
+    batch_size: 32          # matches ABLANG2_NEW_CLS notebook
+    projected_sizes: [256, 512, 1024]
+
+  esm_c:
+    name: "ESM-C"
+    plm_key: "esm_c"
+    model_name: "esmc_300m"
+    batch_size: 32          # matches ESM_C_CLS notebook
+    projected_sizes: [256, 512, 1024]
+
+  progen2_small:
+    name: "PROGEN-2 Small"
+    plm_key: "progen2_small"
+    model_name: "hugohrban/progen2-small"
+    batch_size: 32          # matches PROGEN_SMALL_NEW_CLS notebook
+    projected_sizes: [256, 512, 1024]
+
+  progen2_medium:
+    name: "PROGEN-2 Medium"
+    plm_key: "progen2_medium"
+    model_name: "hugohrban/progen2-medium"
+    batch_size: 32          # matches PROGEN_MEDIUM_CLS notebook
+    projected_sizes: [256, 512, 1024]

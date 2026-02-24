@@ -1,0 +1,68 @@
+# Baseline Model Configuration
+# Fast baseline using ESM-2 embeddings without fine-tuning
+
+experiment_name: "Baseline_ESM2"
+description: "Fast Baseline Model for Protein-Protein Binding Affinity Prediction using frozen ESM-2"
+
+# Data Configuration
+data:
+  dataset_path: "data/PPB_Affinity_Sequences_Final (version 1).csv"
+  cache_dir: "cache"
+  embedding_cache: "cache/esm2_embeddings_baseline.pkl"
+
+# Model Configuration
+model:
+  model_name: "facebook/esm2_t33_650M_UR50D"
+  embedding_size: 1280
+  projected_size: 256
+  projected_dropout: 0.1
+  freeze_backbone: true
+  use_lora: false
+
+# Data Splitting Configuration
+data_split:
+  cv_strategy: "random"  # Options: random, cold_target, sequence_similarity
+  n_folds: 5
+  seed: 42
+
+# Training Configuration
+training:
+  epochs: 30
+  batch_size: 1           # matches baseline notebook config (batch_size: 1)
+  learning_rate: 1.0e-4
+  weight_decay: 0.01      # torch.optim.AdamW default (matches notebooks)
+  patience: 15
+  optimizer: "adamw"
+  warmup_steps: 0
+
+# Device Configuration
+device:
+  type: "auto"  # Options: auto, cuda, cpu
+  mixed_precision: false
+  num_workers: 4
+
+# Output Configuration
+output:
+  results_dir: "results/baseline"
+  save_best_model: true
+  save_predictions: true
+  plot_results: true
+
+# Reproducibility
+reproducibility:
+  seed: 42
+  deterministic: true
+
+# Split-specific configurations
+splits:
+  random:
+    name: "Model_1_Random"
+    cv_strategy: "random"
+  
+  cold_target:
+    name: "Model_1_Cold"
+    cv_strategy: "cold_target"
+  
+  sequence_similarity:
+    name: "Model_1_SeqSim"
+    cv_strategy: "sequence_similarity"
