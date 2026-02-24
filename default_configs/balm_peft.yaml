@@ -1,0 +1,57 @@
+model_configs:
+  checkpoint_path: BALM/bdb-cleaned-r-esm2-esm2-cosinemse
+  esm_model_name: facebook/esm2_t33_650M_UR50D
+  protein_model_name_or_path: facebook/esm2_t33_650M_UR50D
+  proteina_model_name_or_path: facebook/esm2_t33_650M_UR50D
+  
+  # Model hyperparameters
+  model_hyperparameters:
+    learning_rate: 0.001
+    warmup_steps_ratio: 0.06
+    protein_max_seq_len: 2048
+    proteina_max_seq_len: 2048
+    gradient_accumulation_steps: 32
+    projected_size: 256
+    projected_dropout: 0.3
+    esm_layer: 33
+    mean_pool: true
+
+  # PEFT configurations
+  peft_configs:
+    enabled: true  # Enable PEFT
+    protein:
+      method: "lora"  # lora, loha, lokr, ia3
+      rank: 8
+      alpha: 16
+      dropout: 0.1
+      target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
+      bias: "none"
+    proteina:
+      method: "lora"
+      rank: 8
+      alpha: 16
+      dropout: 0.1
+      target_modules: ["q_proj", "k_proj", "v_proj", "o_proj"]
+      bias: "none"
+    
+  # Memory optimization
+  memory_efficient: true
+  gradient_checkpointing: true
+  
+  # Training configuration
+  loss_function: cosine_mse
+  pkd_lower_bound: -0.4
+  pkd_upper_bound: 5.0
+
+dataset_configs:
+  dataset_name: BindingDB_filtered
+  split_method: random
+  harmonize_affinities_mode: null
+
+training_configs:
+  random_seed: 1234
+  device: 0
+  patience: 75
+  epochs: 150
+  batch_size: 8  # Reduced from original due to PEFT memory overhead
+  outputs_dir: "outputs"
