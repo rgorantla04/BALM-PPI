@@ -187,15 +187,6 @@ python -c "import pandas as pd; df = pd.read_csv('data/PPB_Affinity_Sequences_Fi
 python -c "from src.utils.config import load_config; config = load_config('configs/model_1_config.yaml'); print(config['model'])"
 ```
 
-## Performance Expectations
-
-Typical results (5-fold CV, cold target split):
-
-| Model | RMSE | Pearson | Spearman | CI |
-|-------|------|---------|----------|-----|
-| Baseline | 0.95 | 0.72 | 0.70 | 0.75 |
-| Model-1 | 0.92 | 0.75 | 0.73 | 0.77 |
-| ALPINE | 0.89 | 0.77 | 0.75 | 0.78 |
 
 *Note: These are example values. Your results will depend on your dataset.*
 
