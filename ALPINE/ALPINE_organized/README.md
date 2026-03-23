@@ -1,4 +1,4 @@
-# ALPINE: Advanced Learning on Protein-Protein Interaction Networks
+
 
 A comprehensive framework for protein-protein binding affinity prediction using transformer-based protein language models (PLMs) with advanced training strategies.
 
@@ -8,7 +8,7 @@ ALPINE provides three model architectures for predicting protein-protein binding
 
 1. **Baseline Model**: Fast baseline using frozen ESM-2 embeddings with a simple projection head
 2. **Model-1**: BALM architecture with frozen ESM-2 backbone and trainable projection head
-3. **ALPINE**: Full BALM architecture with LoRA fine-tuning for efficient adaptation
+3. **BALM-PPI**: Full BALM architecture with LoRA fine-tuning for efficient adaptation
 
 Additionally, we include ablation studies comparing different protein language models (Ablang2, ESM-2, ESM-C, PROGEN-2).
 
@@ -115,7 +115,7 @@ python train_baseline.py --config configs/baseline_config.yaml --split sequence_
 python train_model1.py --config configs/model_1_config.yaml --split cold_target
 ```
 
-#### 3. ALPINE (LoRA Fine-tuning)
+#### 3. BALM-PPI (LoRA Fine-tuning)
 
 ```bash
 # Cold target split with LoRA
@@ -178,7 +178,7 @@ setup_reproducibility(seed=42)
 - Fast inference (pre-computed embeddings)
 - Low memory footprint
 
-**ALPINE**:
+**BALM-PPI**:
 - LoRA fine-tuning on transformer attention layers
 - Efficient parameter adaptation
 - Better performance for domain-specific tasks
@@ -200,16 +200,8 @@ Results are saved in `results/{model_name}/`:
 
 ## Citation
 
-If you use ALPINE in your research, please cite:
+If you use our model in your research, please cite:
 
-```bibtex
-@article{alpine2024,
-  title={ALPINE: Advanced Learning on Protein-Protein Interaction Networks},
-  author={Your Name},
-  journal={Your Journal},
-  year={2024}
-}
-```
 
 ## License
 
