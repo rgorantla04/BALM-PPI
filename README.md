@@ -1,4 +1,4 @@
-# ALPINE: Advanced Learning on Protein-Protein Interaction Networks
+# BALM-PPI
 
 A comprehensive framework for protein-protein binding affinity prediction using transformer-based protein language models (PLMs) with advanced training strategies.
 
