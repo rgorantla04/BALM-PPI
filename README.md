@@ -8,7 +8,7 @@ ALPINE provides three model architectures for predicting protein-protein binding
 
 1. **Baseline Model**: Fast baseline using frozen ESM-2 embeddings with a simple projection head
 2. **Model-1**: BALM architecture with frozen ESM-2 backbone and trainable projection head
-3. **ALPINE**: Full BALM architecture with LoRA fine-tuning for efficient adaptation
+3. **BALM-PPI**: Full BALM architecture with LoRA fine-tuning for efficient adaptation
 
 Additionally, we include ablation studies comparing different protein language models (Ablang2, ESM-2, ESM-C, PROGEN-2).
 
@@ -50,17 +50,11 @@ ALPINE_organized/
 └── .gitignore              # Git ignore file
 ```
 
-## Installation
-
-### Prerequisites
-- Python 3.9+
-- CUDA 11.8+ (optional, for GPU support)
-
 ### Setup
 
 1. Clone the repository:
 ```bash
-cd ALPINE_organized
+cd BALM-PPI_organized
 ```
 
 2. Create a virtual environment (optional but recommended):
@@ -76,7 +70,7 @@ pip install -r requirements.txt
 
 4. Place your dataset in the `data/` directory:
 ```bash
-cp "PPB_Affinity_Sequences_Final (version 1).csv" data/
+cp "PPB_Affinity_Sequences.csv" data/
 ```
 
 ## Usage
@@ -115,7 +109,7 @@ python train_baseline.py --config configs/baseline_config.yaml --split sequence_
 python train_model1.py --config configs/model_1_config.yaml --split cold_target
 ```
 
-#### 3. ALPINE (LoRA Fine-tuning)
+#### 3. BALM-PPI (LoRA Fine-tuning)
 
 ```bash
 # Cold target split with LoRA
@@ -178,17 +172,12 @@ setup_reproducibility(seed=42)
 - Fast inference (pre-computed embeddings)
 - Low memory footprint
 
-**ALPINE**:
+**BALM-PPI**:
 - LoRA fine-tuning on transformer attention layers
 - Efficient parameter adaptation
 - Better performance for domain-specific tasks
 
-## Training Tips
 
-1. **Memory**: Use larger batch sizes for baseline (batch_size=16-32)
-2. **LoRA**: Recommended rank=8, alpha=16 for balance
-3. **Learning Rate**: 1e-4 to 1e-3 depending on model and dataset
-4. **Patience**: Early stopping after 15 epochs without improvement
 
 ## Results
 
@@ -200,16 +189,8 @@ Results are saved in `results/{model_name}/`:
 
 ## Citation
 
-If you use ALPINE in your research, please cite:
 
-```bibtex
-@article{alpine2024,
-  title={ALPINE: Advanced Learning on Protein-Protein Interaction Networks},
-  author={Your Name},
-  journal={Your Journal},
-  year={2024}
-}
-```
+
 
 ## License
 
