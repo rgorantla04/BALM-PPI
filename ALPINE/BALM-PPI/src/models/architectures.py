@@ -1,6 +1,6 @@
 """
 Model architectures for protein-protein binding affinity prediction.
-Includes: Baseline, Model-1 (Frozen), and ALPINE (with LoRA).
+Includes: Baseline, Model-1 (Frozen), and BALM-PPI (with LoRA).
 """
 
 import torch
@@ -167,7 +167,7 @@ class FastBaselinePPIModel(nn.Module):
 class BALMForLoRAFinetuning(nn.Module):
     """
     BALM model with LoRA fine-tuning on ESM-2.
-    Used for ALPINE experiments.
+    Used for BALM-PPI experiments.
     """
     
     def __init__(self, esm_model: nn.Module, esm_tokenizer, projected_size: int, 

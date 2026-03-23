@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 """
-ALPINE training script with LoRA fine-tuning.
+BALM-PPI training script with LoRA fine-tuning.
 
-ALPINE uses BALM architecture with LoRA fine-tuning on ESM-2 for efficient adaptation.
+BALM-PPI uses BALM architecture with LoRA fine-tuning on ESM-2 for efficient adaptation.
 Processes sequences directly (not pre-computed embeddings).
 
 Usage:
-    python train_alpine.py --config configs/alpine_config.yaml --split cold_target
+    python train_balm_ppi.py --config configs/balm_ppi_config.yaml --split cold_target
 """
 
 import os
@@ -112,7 +112,7 @@ def evaluate_model_lora(model: torch.nn.Module, dataloader: DataLoader,
 
 
 def main(args):
-    """Main training function for ALPINE."""
+    """Main training function for BALM-PPI."""
     
     # Load configuration
     config = load_config(args.config)
@@ -321,7 +321,7 @@ def main(args):
     if config['output']['plot_results']:
         plot_regression(
             all_y_true, all_y_pred, overall_metrics,
-            title=f"ALPINE ({split_method} split, {config['data_split']['n_folds']}-Fold CV)",
+            title=f"BALM-PPI ({split_method} split, {config['data_split']['n_folds']}-Fold CV)",
             filename=str(results_dir / "overall_regression.png")
         )
     
@@ -329,8 +329,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Train ALPINE with LoRA fine-tuning")
-    parser.add_argument("--config", type=str, default="configs/alpine_config.yaml",
+    parser = argparse.ArgumentParser(description="Train BALM-PPI with LoRA fine-tuning")
+    parser.add_argument("--config", type=str, default="configs/balm_ppi_config.yaml",
                        help="Path to config file")
     parser.add_argument("--split", type=str,
                        choices=["random", "cold_target", "sequence_similarity"],

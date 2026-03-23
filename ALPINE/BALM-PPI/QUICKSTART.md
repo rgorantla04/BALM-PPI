@@ -1,6 +1,6 @@
-# ALPINE: Quick Start Guide
+# BALM-PPI: Quick Start Guide
 
-This guide will help you get ALPINE up and running quickly.
+This guide will help you get BALM-PPI up and running quickly.
 
 ## 1. Environment Setup (5 minutes)
 
@@ -48,9 +48,9 @@ Expected output:
 python train_model1.py --config configs/model_1_config.yaml --split cold_target
 ```
 
-### Option C: ALPINE with LoRA (Best Performance but Slower)
+### Option C: BALM-PPI with LoRA (Best Performance but Slower)
 ```bash
-python train_alpine.py --config configs/alpine_config.yaml --split cold_target
+python train_balm_ppi.py --config configs/balm_ppi_config.yaml --split cold_target
 ```
 
 ## 4. Customize Configuration
@@ -82,10 +82,10 @@ python train_model1.py --config configs/model_1_config.yaml --split random
 python train_model1.py --config configs/model_1_config.yaml --split cold_target
 python train_model1.py --config configs/model_1_config.yaml --split sequence_similarity
 
-# ALPINE with all splits
-python train_alpine.py --config configs/alpine_config.yaml --split random
-python train_alpine.py --config configs/alpine_config.yaml --split cold_target
-python train_alpine.py --config configs/alpine_config.yaml --split sequence_similarity
+# BALM-PPI with all splits
+python train_balm_ppi.py --config configs/balm_ppi_config.yaml --split random
+python train_balm_ppi.py --config configs/balm_ppi_config.yaml --split cold_target
+python train_balm_ppi.py --config configs/balm_ppi_config.yaml --split sequence_similarity
 ```
 
 ## 6. Understanding Results
@@ -187,6 +187,15 @@ python -c "import pandas as pd; df = pd.read_csv('data/PPB_Affinity_Sequences_Fi
 python -c "from src.utils.config import load_config; config = load_config('configs/model_1_config.yaml'); print(config['model'])"
 ```
 
+## Performance Expectations
+
+Typical results (5-fold CV, cold target split):
+
+| Model | RMSE | Pearson | Spearman | CI |
+|-------|------|---------|----------|-----|
+| Baseline | 0.95 | 0.72 | 0.70 | 0.75 |
+| Model-1 | 0.92 | 0.75 | 0.73 | 0.77 |
+| BALM-PPI | 0.89 | 0.77 | 0.75 | 0.78 |
 
 *Note: These are example values. Your results will depend on your dataset.*
 

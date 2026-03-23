@@ -7,7 +7,7 @@ description: "Ablation study comparing different protein language models with BA
 
 # Data Configuration
 data:
-  dataset_path: "C:\\Users\\hs494\\Desktop\\ALPINE_organized\\data\\PPB_Affinity_Sequences_Final (version 1).csv"
+  dataset_path: "C:\\Users\\hs494\\Desktop\\BALM-PPI\\data\\PPB_Affinity_Sequences_Final (version 1).csv"
   cache_dir: "cache"
 
 # Data Splitting Configuration (Cold target split only, matching all PLM notebooks)

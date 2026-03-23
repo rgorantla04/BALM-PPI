@@ -1,5 +1,5 @@
 """
-Reproducibility utilities for ALPINE experiments.
+Reproducibility utilities for BALM-PPI experiments.
 Ensures consistent random seeds across different libraries.
 """
 

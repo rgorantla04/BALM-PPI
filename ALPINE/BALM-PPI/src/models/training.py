@@ -1,5 +1,5 @@
 """
-Training and evaluation utilities for ALPINE experiments.
+Training and evaluation utilities for BALM-PPI experiments.
 """
 
 import os

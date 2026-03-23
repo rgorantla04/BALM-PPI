@@ -1,12 +1,12 @@
-# ALPINE Repository - Verification Checklist
+# BALM-PPI Repository - Verification Checklist
 
 ## ✅ Completion Status
 
-This checklist verifies that all components of the ALPINE organized repository have been created and are ready for use.
+This checklist verifies that all components of the BALM-PPI organized repository have been created and are ready for use.
 
 ## Directory Structure
 
-- ✅ `ALPINE_organized/` - Main project directory
+- ✅ `BALM-PPI/` - Main project directory
 - ✅ `src/` - Main package directory
 - ✅ `src/models/` - Model architectures
 - ✅ `src/data/` - Data handling
@@ -85,8 +85,8 @@ This checklist verifies that all components of the ALPINE organized repository h
   - ✅ Embedding generation/caching
   - ✅ All three split strategies
   - ✅ Metrics tracking
-- ✅ `train_alpine.py` (400+ lines)
-  - ✅ ALPINE with LoRA training
+- ✅ `train_balm_ppi.py` (400+ lines)
+  - ✅ BALM-PPI with LoRA training
   - ✅ Sequence processing
   - ✅ LoRA configuration
   - ✅ Full evaluation pipeline
@@ -102,7 +102,7 @@ This checklist verifies that all components of the ALPINE organized repository h
   - ✅ Model-1 architecture settings
   - ✅ Multiple split configurations
   - ✅ Training parameters
-- ✅ `configs/alpine_config.yaml` (65 lines)
+- ✅ `configs/balm_ppi_config.yaml` (65 lines)
   - ✅ LoRA configuration
   - ✅ ESM-2 settings
   - ✅ Training hyperparameters
@@ -234,7 +234,7 @@ This checklist verifies that all components of the ALPINE organized repository h
 - ✅ Frozen backbone
 - ✅ Pre-computed embeddings
 
-### ALPINE
+### BALM-PPI
 - ✅ LoRA configuration
 - ✅ Sequence processing
 - ✅ Fine-tuning support
@@ -356,6 +356,6 @@ Before pushing to GitHub:
 
 ---
 
-**Project**: ALPINE - Advanced Learning on Protein-Protein Interaction Networks
+**Project**: BALM-PPI - Advanced Learning on Protein-Protein Interaction Networks
 **Date**: 2024
 **Verified**: All systems operational

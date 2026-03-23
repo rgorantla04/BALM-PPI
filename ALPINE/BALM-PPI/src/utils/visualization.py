@@ -1,5 +1,5 @@
 """
-Visualization utilities for ALPINE experiments.
+Visualization utilities for BALM-PPI experiments.
 """
 
 import numpy as np

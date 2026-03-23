@@ -2,14 +2,14 @@
 
 ## Required Dataset
 
-ALPINE requires the protein-protein binding affinity dataset: **PPB_Affinity_Sequences_Final (version 1).csv**
+BALM-PPI requires the protein-protein binding affinity dataset: **PPB_Affinity_Sequences_Final (version 1).csv**
 
 ## File Location
 
 Place the CSV file in the `data/` directory:
 
 ```
-ALPINE_organized/
+BALM-PPI/
 └── data/
     └── PPB_Affinity_Sequences_Final (version 1).csv
 ```
@@ -29,7 +29,7 @@ The CSV file must contain the following columns:
 | `Subgroup` | String | Data subgroup label | `tight_binders` |
 | `Source Data Set` | String | Source dataset identifier | `SKEMPI_v2` |
 
-### Optional Columns (for ALPINE/PEFT)
+### Optional Columns (for BALM-PPI/PEFT)
 
 | Column Name | Type | Description |
 |---|---|---|
@@ -185,7 +185,7 @@ print(df['Y'].dtype)
 - ⏱️ Speed: Fast (embeddings pre-computed)
 - 💾 Memory: Low
 
-### ALPINE (LoRA)
+### BALM-PPI (LoRA)
 - ✅ Requires: Target, proteina, Y, PDB (for cold split)
 - ⏱️ Speed: Slow (fine-tuning)
 - 💾 Memory: High (GPU recommended)

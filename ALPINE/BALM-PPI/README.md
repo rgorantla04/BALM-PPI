@@ -1,10 +1,10 @@
-
+# BALM-PPI: Advanced Learning on Protein-Protein Interaction Networks
 
 A comprehensive framework for protein-protein binding affinity prediction using transformer-based protein language models (PLMs) with advanced training strategies.
 
 ## Overview
 
-ALPINE provides three model architectures for predicting protein-protein binding affinity:
+BALM-PPI provides three model architectures for predicting protein-protein binding affinity:
 
 1. **Baseline Model**: Fast baseline using frozen ESM-2 embeddings with a simple projection head
 2. **Model-1**: BALM architecture with frozen ESM-2 backbone and trainable projection head
@@ -15,7 +15,7 @@ Additionally, we include ablation studies comparing different protein language m
 ## Project Structure
 
 ```
-ALPINE_organized/
+BALM-PPI/
 ├── src/
 │   ├── models/              # Model architectures and training utilities
 │   │   ├── architectures.py # Model definitions
@@ -35,7 +35,7 @@ ALPINE_organized/
 ├── configs/                 # Configuration files
 │   ├── baseline_config.yaml # Baseline model config
 │   ├── model_1_config.yaml  # Model-1 config
-│   ├── alpine_config.yaml   # ALPINE config
+│   ├── balm_ppi_config.yaml   # BALM-PPI config
 │   └── plms_config.yaml     # PLMs ablation config
 ├── data/                    # Dataset (add your CSV file here)
 ├── cache/                   # Cached embeddings
@@ -43,7 +43,7 @@ ALPINE_organized/
 ├── notebooks/               # Original Jupyter notebooks (for reference)
 ├── train_baseline.py        # Baseline training script
 ├── train_model1.py          # Model-1 training script
-├── train_alpine.py          # ALPINE training script
+├── train_balm_ppi.py          # BALM-PPI training script
 ├── train_plms.py            # PLMs ablation script
 ├── requirements.txt         # Python dependencies
 ├── README.md               # This file
@@ -60,7 +60,7 @@ ALPINE_organized/
 
 1. Clone the repository:
 ```bash
-cd ALPINE_organized
+cd BALM-PPI
 ```
 
 2. Create a virtual environment (optional but recommended):
@@ -90,8 +90,8 @@ Your CSV file should contain the following columns:
 - `PDB`: PDB identifier (for cold split)
 - `Subgroup`: Data subgroup label
 - `Source Data Set`: Source dataset identifier
-- `Ligand Name`: Ligand name (for ALPINE)
-- `Receptor Name`: Receptor name (for ALPINE)
+- `Ligand Name`: Ligand name (for BALM-PPI)
+- `Receptor Name`: Receptor name (for BALM-PPI)
 
 ### Running Experiments
 
@@ -119,7 +119,7 @@ python train_model1.py --config configs/model_1_config.yaml --split cold_target
 
 ```bash
 # Cold target split with LoRA
-python train_alpine.py --config configs/alpine_config.yaml --split cold_target
+python train_balm_ppi.py --config configs/balm_ppi_config.yaml --split cold_target
 ```
 
 #### 4. PLMs Ablation Study
@@ -200,8 +200,16 @@ Results are saved in `results/{model_name}/`:
 
 ## Citation
 
-If you use our model in your research, please cite:
+If you use BALM-PPI in your research, please cite:
 
+```bibtex
+@article{balm_ppi2024,
+  title={BALM-PPI: Advanced Learning on Protein-Protein Interaction Networks},
+  author={Your Name},
+  journal={Your Journal},
+  year={2024}
+}
+```
 
 ## License
 
@@ -220,7 +228,7 @@ For issues or questions:
 Original Jupyter notebooks are preserved in the `notebooks/` directory for reference:
 - `BASELINE_NEW_CLS.ipynb`: Baseline model implementation
 - `Model_1_*.ipynb`: Model-1 variants (3 splits)
-- `esm2_peft_*.ipynb`: ALPINE with PEFT/LoRA (3 splits)
+- `esm2_peft_*.ipynb`: BALM-PPI with PEFT/LoRA (3 splits)
 - `*_CLS.ipynb`: PLMs ablation studies
 
 ## Changelog
@@ -229,7 +237,7 @@ Original Jupyter notebooks are preserved in the `notebooks/` directory for refer
 - Initial release
 - Baseline model
 - Model-1 architecture
-- ALPINE with LoRA
+- BALM-PPI with LoRA
 - PLMs ablation studies
 - Comprehensive configuration system
 - Full reproducibility support

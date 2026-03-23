@@ -1,0 +1,38 @@
+# ==============================================================================
+# config.yaml — BALM-PPI FLAB Benchmark
+# ==============================================================================
+
+# --- Paths ---
+paths:
+  checkpoint_path: "D:/BALM_Fineclone/BALM-PPI/scripts/cv_results_lora_random_target_new/best_model_fold_1.pth"
+  custom_dataset_path: "C:/Users/hs494/Downloads/BALM-PPI/BALM-PPI/BALM-PPI/data/Flab_data/shanehsazzadeh2023unlocking_zerokd_trastuzumab.csv"
+  output_dir: "flab_benchmark_results"
+
+# --- Model ---
+model:
+  esm_model_name: "facebook/esm2_t33_650M_UR50D"
+  projected_size: 256
+  dropout: 0.1
+  use_lora: true
+  lora:
+    rank: 8
+    alpha: 16
+    dropout: 0.1
+    target_modules:
+      - "query"
+      - "value"
+
+# --- Task ---
+task:
+  device: "auto"           # "auto" picks cuda if available, else cpu
+  seeds: [42, 123, 999]
+  few_shot_train_sizes: [0.10, 0.20, 0.30]
+
+# --- Few-shot fine-tuning ---
+finetuning:
+  epochs: 70
+  learning_rate: 1.0e-4
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  early_stopping_patience: 5
+  early_stopping_min_delta: 0.001

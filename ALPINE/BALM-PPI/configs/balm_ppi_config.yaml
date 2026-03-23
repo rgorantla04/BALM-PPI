@@ -1,8 +1,8 @@
-# ALPINE Configuration
+# BALM-PPI Configuration
 # BALM model with LoRA fine-tuning on ESM-2 (PEFT)
 
-experiment_name: "ALPINE_LoRA_ESM2"
-description: "ALPINE: BALM Model with LoRA fine-tuning on ESM-2"
+experiment_name: "BALM-PPI_LoRA_ESM2"
+description: "BALM-PPI: BALM Model with LoRA fine-tuning on ESM-2"
 
 # Data Configuration
 data:
@@ -52,7 +52,7 @@ device:
 
 # Output Configuration
 output:
-  results_dir: "results/alpine"
+  results_dir: "results/balm_ppi"
   save_best_model: true
   save_predictions: true
   plot_results: true
@@ -65,13 +65,13 @@ reproducibility:
 # Split-specific configurations
 splits:
   random:
-    name: "ALPINE_Random"
+    name: "BALM-PPI_Random"
     cv_strategy: "random"
   
   cold_target:
-    name: "ALPINE_Cold"
+    name: "BALM-PPI_Cold"
     cv_strategy: "cold_target"
   
   sequence_similarity:
-    name: "ALPINE_SeqSim"
+    name: "BALM-PPI_SeqSim"
     cv_strategy: "sequence_similarity"
