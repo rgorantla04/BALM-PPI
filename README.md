@@ -220,7 +220,7 @@ For issues or questions:
 
 Original Jupyter notebooks are preserved in the `notebooks/` directory for reference:
 - `BASELINE_NEW_CLS.ipynb`: Baseline model implementation
-- `Model_1_*.ipynb`: Model-1 variants (3 splits)
+- `Model_1_*.ipynb`: BALM-PPI without PEFT (Model-1) variants (3 splits)
 - `esm2_peft_*.ipynb`: BALM-PPI with PEFT/LoRA (3 splits)
 - `*_CLS.ipynb`: PLMs ablation studies
 
