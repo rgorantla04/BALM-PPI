@@ -87,6 +87,17 @@ Your CSV file should contain the following columns:
 - `Ligand Name`: Ligand name (for BALM-PPI)
 - `Receptor Name`: Receptor name (for BALM-PPI)
 
+# Running Inference & Testing on custom dataset
+
+To easily test our trained models, we provide a custom, user-friendly notebook for Batch Inference, Zero-Shot, and Few-Shot testing.
+
+Navigate to the notebooks/ directory.
+
+Open custom_notebook.ipynb.
+
+Follow the interactive cells to load a pre-trained model (e.g., best_model_fold_1.pth) and pass in your custom protein sequences to evaluate binding affinities without needing to run the full training pipelines.
+
+
 ### Running Experiments
 
 #### 1. Baseline Model
@@ -167,7 +178,7 @@ setup_reproducibility(seed=42)
 - Cosine similarity computation
 - MSE loss
 
-**Baseline & Model-1**:
+**Baseline & Model-1 (BALM-PPI without PEFT)**:
 - Frozen transformer backbone
 - Fast inference (pre-computed embeddings)
 - Low memory footprint
@@ -191,14 +202,7 @@ Results are saved in `results/{model_name}/`:
 
 If you use BALM-PPI in your research, please cite:
 
-```bibtex
-@article{balm_ppi2024,
-  title={BALM-PPI: Advanced Learning on Protein-Protein Interaction Networks},
-  author={Your Name},
-  journal={Your Journal},
-  year={2024}
-}
-```
+
 
 ## License
 
@@ -220,13 +224,4 @@ Original Jupyter notebooks are preserved in the `notebooks/` directory for refer
 - `esm2_peft_*.ipynb`: BALM-PPI with PEFT/LoRA (3 splits)
 - `*_CLS.ipynb`: PLMs ablation studies
 
-## Changelog
 
-### v1.0.0 (2024)
-- Initial release
-- Baseline model
-- Model-1 architecture
-- BALM-PPI with LoRA
-- PLMs ablation studies
-- Comprehensive configuration system
-- Full reproducibility support
