@@ -2,13 +2,21 @@
 
 # Data Format
 Your CSV file should contain the following columns:
+
 Target: Target protein sequence
+
 proteina: Query protein sequence
+
 Y: pKd binding affinity value
+
 PDB: PDB identifier (for cold split)
+
 Subgroup: Data subgroup label
+
 Source Data Set: Source dataset identifier
+
 Ligand Name: Ligand name (for BALM-PPI)
+
 Receptor Name: Receptor name (for BALM-PPI)
 
 # Running Inference & Testing
