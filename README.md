@@ -1,4 +1,4 @@
-# BALM-PPI: Advanced Learning on Protein-Protein Interaction Networks
+# BALM-PPI: Explainable protein–protein binding affinity prediction via fine-tuning protein language models
 
 A comprehensive framework for protein-protein binding affinity prediction using transformer-based protein language models (PLMs) with advanced training strategies.
 
