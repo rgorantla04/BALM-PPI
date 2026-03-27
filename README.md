@@ -6,7 +6,7 @@ A comprehensive framework for protein-protein binding affinity prediction using 
 
 BALM-PPI provides three model architectures for predicting protein-protein binding affinity:
 
-![alt text](architecture.png)
+![alt text](BALM-PPI/architecture.png)
 1. **Baseline Model**: Fast baseline using frozen ESM-2 embeddings with a simple projection head
 2. **BALM-PPI without PEFT (Model-1)**: BALM architecture with frozen ESM-2 backbone and trainable projection head
 3. **BALM-PPI**: Full BALM architecture with LoRA fine-tuning for efficient adaptation
