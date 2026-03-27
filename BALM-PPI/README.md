@@ -13,54 +13,6 @@ BALM-PPI provides three model architectures for predicting protein-protein bindi
 
 Additionally, we include ablation studies comparing different protein language models (Ablang2, ESM-2, ESM-C, PROGEN-2).
 
-## Project Structure
-
-```
-BALM-PPI/
-├── src/
-│   ├── models/              # Model architectures and training utilities
-│   │   ├── architectures.py # Model definitions
-│   │   ├── training.py      # Training and evaluation functions
-│   │   └── __init__.py
-│   ├── data/                # Data loading and processing
-│   │   ├── loader.py        # Dataset classes and loading functions
-│   │   ├── embeddings.py    # Embedding extraction from PLMs
-│   │   ├── splits.py        # CV splitting strategies
-│   │   └── __init__.py
-│   └── utils/               # Utility functions
-│       ├── reproducibility.py # Random seed setup
-│       ├── metrics.py        # Evaluation metrics
-│       ├── config.py         # Configuration loading
-│       ├── visualization.py  # Plotting functions
-│       └── __init__.py
-├── configs/                 # Configuration files
-│   ├── baseline_config.yaml # Baseline model config
-│   ├── model_1_config.yaml  # Model-1 config
-│   ├── balm_ppi_config.yaml   # BALM-PPI config
-│   └── plms_config.yaml     # PLMs ablation config
-├── data/                    # Dataset (add your CSV file here)
-├── cache/                   # Cached embeddings (auto-generated)
-├── results/                 # Training results and predictions
-├── Training_notebooks/      # Original Jupyter notebooks (for reference)
-│   ├── Baseline Notebooks/
-│   ├── BALM-PPI without PEFT Notebooks/
-│   ├── BALM-PPI(PEFT) Notebooks/
-│   └── PLMs Notebooks/
-├── notebooks/               # Inference notebooks
-│   └── custom_notebook.ipynb  # Zero-shot & few-shot inference on custom data
-├── train_baseline.py        # Baseline training script
-├── train_model1.py          # Model-1 training script
-├── train_balm_ppi.py        # BALM-PPI training script
-├── train_plms.py            # PLMs ablation script
-├── README.md                # This file
-└── .gitignore               # Git ignore file
-```
-
-## Installation
-
-### Prerequisites
-- Python 3.9+
-- CUDA 11.8+ (optional, for GPU support)
 
 ### Setup
 
