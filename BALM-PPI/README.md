@@ -16,10 +16,9 @@ Additionally, we include ablation studies comparing different protein language m
 
 ### Setup
 
-1. Clone the repository and navigate into the project:
+1. Clone the repository:
 ```bash
-git clone <repo-url>
-cd ALPINE
+cd BALM-PPI
 ```
 
 2. Create a virtual environment (optional but recommended):
@@ -33,15 +32,11 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Navigate to the BALM-PPI project directory:
+4. Place your dataset in the `data/` directory:
 ```bash
-cd BALM-PPI
+cp "PPB_Affinity_Sequences.csv" data/
 ```
 
-5. Place your dataset in the `data/` directory:
-```bash
-cp "PPB_Affinity_Sequences_Final (version 1).csv" data/
-```
 
 ## Usage
 
