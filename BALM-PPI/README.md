@@ -6,6 +6,7 @@ A comprehensive framework for protein-protein binding affinity prediction using 
 
 BALM-PPI provides three model architectures for predicting protein-protein binding affinity:
 
+![alt text](architecture.png)
 1. **Baseline Model**: Fast baseline using frozen ESM-2 embeddings with a simple projection head
 2. **Model-1**: BALM architecture with frozen ESM-2 backbone and trainable projection head
 3. **BALM-PPI**: Full BALM architecture with LoRA fine-tuning for efficient adaptation
@@ -38,16 +39,21 @@ BALM-PPI/
 │   ├── balm_ppi_config.yaml   # BALM-PPI config
 │   └── plms_config.yaml     # PLMs ablation config
 ├── data/                    # Dataset (add your CSV file here)
-├── cache/                   # Cached embeddings
+├── cache/                   # Cached embeddings (auto-generated)
 ├── results/                 # Training results and predictions
-├── notebooks/               # Original Jupyter notebooks (for reference)
+├── Training_notebooks/      # Original Jupyter notebooks (for reference)
+│   ├── Baseline Notebooks/
+│   ├── BALM-PPI without PEFT Notebooks/
+│   ├── BALM-PPI(PEFT) Notebooks/
+│   └── PLMs Notebooks/
+├── notebooks/               # Inference notebooks
+│   └── custom_notebook.ipynb  # Zero-shot & few-shot inference on custom data
 ├── train_baseline.py        # Baseline training script
 ├── train_model1.py          # Model-1 training script
-├── train_balm_ppi.py          # BALM-PPI training script
+├── train_balm_ppi.py        # BALM-PPI training script
 ├── train_plms.py            # PLMs ablation script
-├── requirements.txt         # Python dependencies
-├── README.md               # This file
-└── .gitignore              # Git ignore file
+├── README.md                # This file
+└── .gitignore               # Git ignore file
 ```
 
 ## Installation
@@ -58,9 +64,10 @@ BALM-PPI/
 
 ### Setup
 
-1. Clone the repository:
+1. Clone the repository and navigate into the project:
 ```bash
-cd BALM-PPI
+git clone <repo-url>
+cd ALPINE
 ```
 
 2. Create a virtual environment (optional but recommended):
@@ -74,12 +81,58 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Place your dataset in the `data/` directory:
+4. Navigate to the BALM-PPI project directory:
+```bash
+cd BALM-PPI
+```
+
+5. Place your dataset in the `data/` directory:
 ```bash
 cp "PPB_Affinity_Sequences_Final (version 1).csv" data/
 ```
 
 ## Usage
+
+### Option 1: Web Tool (No Setup Required)
+
+The easiest way to use BALM-PPI — paste your FASTA sequences directly and get binding affinity predictions instantly, no installation needed:
+
+**[BALM-PPI Web Tool on Hugging Face Spaces](https://huggingface.co/spaces/Harshit494/BALM-PPI)**
+
+Supports standard FASTA format for both target and query proteins.
+
+---
+
+### Option 2: Inference Notebook (Custom Data, Zero/Few-Shot)
+
+Use `notebooks/custom_notebook.ipynb` to run inference on your own dataset locally.
+
+**What it does:**
+- **Zero-Shot**: Loads pretrained BALM-PPI weights from Hugging Face automatically and predicts binding affinity on your data — no training required
+- **Few-Shot Fine-Tuning**: Adapts the model to your specific data using a small labeled subset (30% by default, configurable)
+- **Batch Processing**: Runs over a full CSV file with progress tracking
+- **Evaluation**: Computes RMSE, Pearson, Spearman and plots regression comparisons between zero-shot and few-shot results
+
+**Input CSV format:**
+
+| Column | Description |
+|--------|-------------|
+| `Target` | Target protein sequence (single-letter AA codes; use `\|` to separate chains) |
+| `proteina` | Query/ligand protein sequence |
+| `Y` | pKd value (optional — only needed for evaluation metrics) |
+
+If no CSV is provided, a synthetic dummy dataset is generated automatically so you can test the notebook immediately.
+
+**Steps to run:**
+1. Open `notebooks/custom_notebook.ipynb` in Jupyter
+2. Place your CSV in the `notebooks/` directory (or update `CSV_PATH` in the notebook)
+3. Adjust `PKD_LOWER_BOUND` / `PKD_UPPER_BOUND` to match your training data's pKd range
+4. Run all cells — pretrained weights download automatically
+5. Results are saved to `notebooks/Final_Test_Predictions.csv`
+
+
+
+### Option 3: Full Training from Scratch
 
 ### Data Format
 
@@ -225,11 +278,12 @@ For issues or questions:
 
 ## Original Notebooks
 
-Original Jupyter notebooks are preserved in the `notebooks/` directory for reference:
-- `BASELINE_NEW_CLS.ipynb`: Baseline model implementation
-- `Model_1_*.ipynb`: Model-1 variants (3 splits)
-- `esm2_peft_*.ipynb`: BALM-PPI with PEFT/LoRA (3 splits)
-- `*_CLS.ipynb`: PLMs ablation studies
+Original Jupyter notebooks are preserved in `Training_notebooks/` for reference, organized by model:
+
+- `Training_notebooks/Baseline Notebooks/BASELINE_NEW_CLS (1).ipynb` — Baseline model
+- `Training_notebooks/BALM-PPI without PEFT Notebooks/` — Model-1 (random, cold, seqsim splits)
+- `Training_notebooks/BALM-PPI(PEFT) Notebooks/` — BALM-PPI with LoRA (random, cold, seqsim splits)
+- `Training_notebooks/PLMs Notebooks/` — Ablang2, ESM-2, ESM-C, ProGen ablation studies
 
 ## Changelog
 

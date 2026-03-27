@@ -1,32 +1,40 @@
 # Notebooks Directory
 
-This directory contains the original Jupyter notebooks used during experimentation.
-They are preserved here for reference and reproducibility purposes.
+This directory contains inference and custom data notebooks for BALM-PPI.
 
-## Original Notebooks
+## Contents
 
-### Baseline
-- `BASELINE_NEW_CLS.ipynb` - Baseline model with frozen ESM-2
+### `custom_notebook.ipynb` — Zero-Shot & Few-Shot Inference
 
-### Model-1 (Frozen ESM-2)
-- `Model_1_Random.ipynb` - Model-1 with random split
-- `Model_1_Cold.ipynb` - Model-1 with cold target split
-- `Model_1_Sequence_Similarity.ipynb` - Model-1 with sequence similarity split
+A ready-to-use notebook for running BALM-PPI on your own protein-protein interaction data.
 
-### BALM-PPI (LoRA Fine-tuning)
-- `esm_2_peft_random.ipynb` - BALM-PPI with random split
-- `esm2_peft_cold.ipynb` - BALM-PPI with cold target split
-- `esm2_peft_seqsim.ipynb` - BALM-PPI with sequence similarity split
+**Features:**
+- **Zero-Shot Inference**: Predict binding affinity using the pretrained BALM-PPI model with no training required
+- **Few-Shot Fine-Tuning**: Adapt the model to your data using a small labeled subset (30% by default)
+- **Batch Processing**: Runs over a full CSV dataset efficiently
+- **Automatic Weight Download**: Fetches pretrained weights from Hugging Face (`Harshit494/BALM-PPI`)
+- **Evaluation & Plots**: Computes RMSE, Pearson, Spearman and generates regression plots
 
-### PLMs Ablation Studies
-- `ABLANG2_NEW_CLS.ipynb` - Ablang2 model with different projection sizes
-- `ESM_2_CLS (256,512,1024).ipynb` - ESM-2 with different projection sizes
-- `ESM_C_CLS.ipynb` - ESM-C model with different projection sizes
-- `PROGEN_MEDIUM_CLS.ipynb` - PROGEN-2 Medium with different projection sizes
-- `PROGEN_SMALL_NEW_CLS.ipynb` - PROGEN-2 Small with different projection sizes
+**Input format (CSV):**
+| Column | Description |
+|--------|-------------|
+| `Target` | Target protein sequence (single-letter AA codes, `\|` for multi-chain) |
+| `proteina` | Query protein sequence |
+| `Y` | pKd binding affinity (optional, needed for evaluation) |
 
-## Note
+If no CSV is provided, a synthetic dummy dataset is generated automatically for testing.
 
-The organized Python scripts in the parent directory replicate the functionality of these notebooks
-with improved code organization, configuration management, and reproducibility. For new experiments,
-please use the Python scripts rather than the notebooks.
+**Output:**
+- `Final_Test_Predictions.csv` — Test set predictions after few-shot fine-tuning
+- Console metrics and regression comparison plots
+
+### Data Files
+
+- `Data.csv` — Sample dataset used with `custom_notebook.ipynb`
+- `Final_Test_Predictions.csv` — Output predictions from the last notebook run
+- `best_model_fold_1.pth` — Local copy of pretrained BALM-PPI weights (Fold 1)
+
+## Original Training Notebooks
+
+The original training notebooks (Baseline, Model-1, BALM-PPI, PLMs ablation) are in `Training_notebooks/`.
+For new experiments, use the Python training scripts (`train_*.py`) with YAML configs instead.
