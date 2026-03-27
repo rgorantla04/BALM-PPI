@@ -9,7 +9,7 @@ BALM-PPI provides three model architectures for predicting protein-protein bindi
 ![alt text](BALM-PPI/architecture.png)
 1. **Baseline Model**: Fast baseline using frozen ESM-2 embeddings with a simple projection head
 2. **BALM-PPI without PEFT (Model-1)**: BALM architecture with frozen ESM-2 backbone and trainable projection head
-3. **BALM-PPI**: Full BALM architecture with LoRA fine-tuning for efficient adaptation
+3. **BALM-PPI**: Full BALM-PPI architecture with LoRA fine-tuning for efficient adaptation
 
 Additionally, we include ablation studies comparing different protein language models (Ablang2, ESM-2, ESM-C, PROGEN-2).
 
@@ -39,9 +39,10 @@ BALM-PPI/
 │   ├── balm_ppi_config.yaml   # BALM-PPI config
 │   └── plms_config.yaml     # PLMs ablation config
 ├── data/                    # Dataset (add your CSV file here)
+├── Notebooks/               # Custom Notebook for zero shot and few shot 
 ├── cache/                   # Cached embeddings
 ├── results/                 # Training results and predictions
-├── notebooks/               # Original Jupyter notebooks (for reference)
+├── Training_notebooks/      # Original Jupyter notebooks (for reference)
 ├── train_baseline.py        # Baseline training script
 ├── train_model1.py          # Model-1 training script
 ├── train_balm_ppi.py          # BALM-PPI training script
@@ -92,7 +93,7 @@ Your CSV file should contain the following columns:
 
 To easily test our trained models, we provide a custom, user-friendly notebook for Batch Inference, Zero-Shot, and Few-Shot testing.
 
-Navigate to the BALM-PPI/BALM-PPI/notebooks directory.
+Navigate to the BALM-PPI/Notebooks directory.
 
 Open custom_notebook.ipynb.
 
