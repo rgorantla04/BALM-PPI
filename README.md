@@ -20,7 +20,7 @@ Open custom_notebook.ipynb.
 
 Get started with BALM using these tutorial notebooks:
 
-- 🧬 **Custom dataset usage**: with zero- and few-shot settings: [custom_data_demo.ipynb](BALM-PPI/Notebooks/custom_data_demo.ipynb)
+- 🧬 **Custom dataset usage**: with zero- and few-shot settings: [custom_data_demo.ipynb](BALM-PPI/Notebooks/custom_notebook.ipynb)
 
 ### Data Format
 
