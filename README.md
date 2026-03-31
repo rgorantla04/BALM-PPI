@@ -12,13 +12,12 @@ BALM-PPI provides three model architectures for predicting protein-protein bindi
 
 ## 🚀 **Quick Start**
 
-To easily test our trained models, we provide a custom, user-friendly notebook for Batch Inference, Zero-Shot, and Few-Shot testing.
+To easily test our trained models with custom dataset, we provide a custom, user-friendly notebook for Batch Inference, Zero-Shot, and Few-Shot testing.
 
 Navigate to the BALM-PPI/Notebooks directory.
 
 Open custom_notebook.ipynb.
 
-Get started with BALM using these tutorial notebooks:
 
 - 🧬 **Custom dataset usage**: with zero- and few-shot settings: [custom_data_demo.ipynb](BALM-PPI/Notebooks/custom_notebook.ipynb)
 
