@@ -2,17 +2,39 @@
 
 A comprehensive framework for protein-protein binding affinity prediction using transformer-based protein language models (PLMs) with advanced training strategies.
 
+Predicting protein–protein binding affinity from sequence alone remains a bottleneck for antibody optimization, biologics design and large-scale affinity modelling. Structure-based methods achieve high accuracy but cannot scale when complex structures are unavailable. Here, we present a framework that reframes affinity prediction as metric learning: two proteins are projected into a shared latent space in which cosine similarity directly correlates with experimental binding affinity, and the protein language model encoder is adapted through parameter-efficient fine-tuning (PEFT). On the PPB-Affinity benchmark, the model achieves Pearson r = 0.89 on a random split, generalises to evolutionarily distant proteins (r = 0.61 at <30% sequence identity) and surpasses structure-based deep learning baselines across biological subgroups, without any three-dimensional input. On the strictly de-overlapped AB-Bind dataset, few-shot adaptation with 30% of assay data (Pearson r = 0.756, RMSE = 0.688) outperforms methods trained on 90% of data; consistent gains are observed across nine diverse AbBiBench deep-mutational-scanning assays with 10–30% labelled variants. Residue-level explainability reveals that the model concentrates importance on interface-localised residues aligned with experimentally validated interaction hotspots across enzyme–inhibitor, and antibody–antigen systems. Together, these results establish a scalable, explainable and data-efficient route to protein-protein binding affinity prediction and therapeutic antibody optimisation from sequence alone.
+
 ## Overview
 
 BALM-PPI provides three model architectures for predicting protein-protein binding affinity:
 
 ![alt text](BALM-PPI/architecture.png)
-1. **Baseline Model**: Fast baseline using frozen ESM-2 embeddings with a simple projection head
-2. **BALM-PPI without PEFT (Model-1)**: BALM architecture with frozen ESM-2 backbone and trainable projection head
-3. **BALM-PPI**: Full BALM-PPI architecture with LoRA fine-tuning for efficient adaptation
 
-Additionally, we include ablation studies comparing different protein language models (Ablang2, ESM-2, ESM-C, PROGEN-2).
+## 🚀 **Quick Start**
 
+To easily test our trained models, we provide a custom, user-friendly notebook for Batch Inference, Zero-Shot, and Few-Shot testing.
+
+Navigate to the BALM-PPI/Notebooks directory.
+
+Open custom_notebook.ipynb.
+
+Get started with BALM using these tutorial notebooks:
+
+- 🧬 **Custom dataset usage**: with zero- and few-shot settings: [custom_data_demo.ipynb](BALM-PPI/Notebooks/custom_data_demo.ipynb)
+
+### Data Format
+
+Your CSV file should contain the following columns:
+- `Target`: Target protein sequence
+- `proteina`: Query protein sequence
+- `Y`: pKd binding affinity value
+
+Follow the interactive cells to load a pre-trained model (e.g., best_model_fold_1.pth) and pass in your custom protein sequences (CSV file with above format) to evaluate binding affinities without needing to run the full training pipelines.
+
+## Webtool
+
+We have also developed an interactive web application hosted on Hugging Face Spaces (https://huggingface.co/spaces/Harshit494/BALM-PPI), which enables users to access the full prediction and explainability pipeline without requiring any local computational setup.
+ 
 ## Project Structure
 
 ```
@@ -77,7 +99,7 @@ cp "PPB_Affinity_Sequences.csv" data/
 
 ## Usage
 
-### Data Format
+### Data Format For Full training
 
 Your CSV file should contain the following columns:
 - `Target`: Target protein sequence
@@ -88,16 +110,6 @@ Your CSV file should contain the following columns:
 - `Source Data Set`: Source dataset identifier
 - `Ligand Name`: Ligand name (for BALM-PPI)
 - `Receptor Name`: Receptor name (for BALM-PPI)
-
-# Running Inference & Testing on custom dataset
-
-To easily test our trained models, we provide a custom, user-friendly notebook for Batch Inference, Zero-Shot, and Few-Shot testing.
-
-Navigate to the BALM-PPI/Notebooks directory.
-
-Open custom_notebook.ipynb.
-
-Follow the interactive cells to load a pre-trained model (e.g., best_model_fold_1.pth) and pass in your custom protein sequences (CSV file with above format) to evaluate binding affinities without needing to run the full training pipelines.
 
 
 ### Running Experiments
@@ -171,25 +183,6 @@ setup_reproducibility(seed=42)
 - **Pearson**: Pearson correlation coefficient
 - **Spearman**: Spearman rank correlation
 - **CI**: Concordance Index (for ranking)
-
-### Model Architectures
-
-**BALMProjectionHead**: 
-- Separate projection layers for each protein
-- L2 normalization
-- Cosine similarity computation
-- MSE loss
-
-**Baseline & Model-1 (BALM-PPI without PEFT)**:
-- Frozen transformer backbone
-- Fast inference (pre-computed embeddings)
-- Low memory footprint
-
-**BALM-PPI**:
-- LoRA fine-tuning on transformer attention layers
-- Efficient parameter adaptation
-- Better performance for domain-specific tasks
-
 
 
 ## Results
