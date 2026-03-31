@@ -34,7 +34,4 @@ If no CSV is provided, a synthetic dummy dataset is generated automatically for 
 - `Final_Test_Predictions.csv` — Output predictions from the last notebook run
 - `best_model_fold_1.pth` — Local copy of pretrained BALM-PPI weights (Fold 1)
 
-## Original Training Notebooks
 
-The original training notebooks (Baseline, Model-1, BALM-PPI, PLMs ablation) are in `Training_notebooks/`.
-For new experiments, use the Python training scripts (`train_*.py`) with YAML configs instead.
