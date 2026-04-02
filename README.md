@@ -192,15 +192,24 @@ Results are saved in `results/{model_name}/`:
 - `overall_regression.png`: Regression plot
 - `model_metrics.json`: Detailed metrics
 
-## Citation
+## 📝 Citations
 
-If you use BALM-PPI in your research, please cite:
+If you find the BALM model and benchmark useful in your research, please cite our paper:
+
+```
+@article {Singh2026.03.30.715237,
+	author = {Singh, Harshit and SINGH, RAJEEV KUMAR and Srivastava, Satya Pratik and Pradhan, Suryavedha and Gorantla, Rohan},
+	title = {Explainable protein-protein binding affinity prediction via fine-tuning protein language models},
+	year = {2026},
+	doi = {10.64898/2026.03.30.715237},
+	publisher = {Cold Spring Harbor Laboratory},
+	URL = {https://www.biorxiv.org/content/10.64898/2026.03.30.715237v1},
+	journal = {bioRxiv}
+}
+```
 
 
 
-## License
-
-[Add your license here]
 
 ## Support
 
