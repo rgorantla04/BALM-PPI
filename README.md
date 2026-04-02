@@ -88,7 +88,7 @@ python train_baseline.py --config configs/baseline_config.yaml --split cold_targ
 python train_baseline.py --config configs/baseline_config.yaml --split sequence_similarity
 ```
 
-#### 2. Model-1 (Frozen ESM-2)
+#### 2. BALM-PPI Without PEFT (Frozen ESM-2)
 
 ```bash
 # Cold target split (main configuration)
@@ -122,12 +122,12 @@ All experiments are configured via YAML files in the `configs/` directory. Key p
 
 Edit configuration files to customize experiments without modifying code.
 
-## Key Features
+
 
 ### Data Splitting Strategies
 
-1. **Random**: Standard random k-fold splitting
-2. **Cold Target**: Group-k-fold based on PDB identifiers (cold start)
+1. **Random Split**: Standard random k-fold splitting
+2. **Cold Split**: Group-k-fold based on PDB identifiers (cold start)
 3. **Sequence Similarity**: Hierarchical clustering based on k-mer Jaccard similarity
 
 ### Reproducibility
