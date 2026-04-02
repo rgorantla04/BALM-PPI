@@ -10,6 +10,7 @@ data:
   cache_dir: "cache"
   embedding_cache: null  # Not needed for LoRA (processes sequences directly)
 
+
 # Model Configuration
 model:
   model_name: "facebook/esm2_t33_650M_UR50D"
