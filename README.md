@@ -33,45 +33,7 @@ Follow the interactive cells to load a pre-trained model (e.g., best_model_fold_
 ## Webtool
 
 We have also developed an interactive web application hosted on Hugging Face Spaces (https://huggingface.co/spaces/Harshit494/BALM-PPI), which enables users to access the full prediction and explainability pipeline without requiring any local computational setup.
- 
-## Project Structure
 
-```
-BALM-PPI/
-├── src/
-│   ├── models/              # Model architectures and training utilities
-│   │   ├── architectures.py # Model definitions
-│   │   ├── training.py      # Training and evaluation functions
-│   │   └── __init__.py
-│   ├── data/                # Data loading and processing
-│   │   ├── loader.py        # Dataset classes and loading functions
-│   │   ├── embeddings.py    # Embedding extraction from PLMs
-│   │   ├── splits.py        # CV splitting strategies
-│   │   └── __init__.py
-│   └── utils/               # Utility functions
-│       ├── reproducibility.py # Random seed setup
-│       ├── metrics.py        # Evaluation metrics
-│       ├── config.py         # Configuration loading
-│       ├── visualization.py  # Plotting functions
-│       └── __init__.py
-├── configs/                 # Configuration files
-│   ├── baseline_config.yaml # Baseline model config
-│   ├── model_1_config.yaml  # Model-1 config
-│   ├── balm_ppi_config.yaml   # BALM-PPI config
-│   └── plms_config.yaml     # PLMs ablation config
-├── data/                    # Dataset (add your CSV file here)
-├── Notebooks/               # Custom Notebook for zero shot and few shot 
-├── cache/                   # Cached embeddings
-├── results/                 # Training results and predictions
-├── Training_notebooks/      # Original Jupyter notebooks (for reference)
-├── train_baseline.py        # Baseline training script
-├── train_model1.py          # Model-1 training script
-├── train_balm_ppi.py          # BALM-PPI training script
-├── train_plms.py            # PLMs ablation script
-├── requirements.txt         # Python dependencies
-├── README.md               # This file
-└── .gitignore              # Git ignore file
-```
 
 ### Setup
 
@@ -209,22 +171,5 @@ If you find the BALM model and benchmark useful in your research, please cite ou
 ```
 
 
-
-
-## Support
-
-For issues or questions:
-1. Check the configuration files for correct settings
-2. Verify dataset format matches expected structure
-3. Ensure CUDA/GPU is available if using GPU mode
-4. Check cache directory has write permissions
-
-## Original Notebooks
-
-Original Jupyter notebooks are preserved in the `notebooks/` directory for reference:
-- `BASELINE_NEW_CLS.ipynb`: Baseline model implementation
-- `Model_1_*.ipynb`: BALM-PPI without PEFT (Model-1) variants (3 splits)
-- `esm2_peft_*.ipynb`: BALM-PPI with PEFT/LoRA (3 splits)
-- `*_CLS.ipynb`: PLMs ablation studies
 
 
