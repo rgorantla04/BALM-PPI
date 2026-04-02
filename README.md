@@ -77,6 +77,15 @@ Your CSV file should contain the following columns:
 
 ### Running Experiments
 
+
+### Configuration
+
+All experiments are configured via YAML files in the `configs/` directory. 
+
+You can find config files in the configs folder. Below are examples for training different models (Baseline, BALM-PPI without PEFT, and BALM-PPI) on datasets we used in the study.
+
+Edit configuration files to customize experiments without modifying code.
+
 #### 1. Baseline Model
 
 ```bash
@@ -111,20 +120,6 @@ python train_balm_ppi.py --config configs/balm_ppi_config.yaml --split cold_targ
 python train_plms.py --config configs/plms_config.yaml --plm esm2
 python train_plms.py --config configs/plms_config.yaml --plm ablang2
 ```
-
-### Configuration
-
-All experiments are configured via YAML files in the `configs/` directory. Key parameters:
-
-- **Data**: Dataset path, cache locations
-- **Model**: PLM selection, projection sizes, LoRA settings
-- **Training**: Learning rate, epochs, batch size, patience
-- **Device**: GPU/CPU selection, mixed precision
-- **Output**: Results directory, saving options
-
-Edit configuration files to customize experiments without modifying code.
-
-
 
 ### Data Splitting Strategies
 
