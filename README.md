@@ -10,6 +10,8 @@ BALM-PPI provides three model architectures for predicting protein-protein bindi
 
 ![alt text](BALM-PPI/architecture.png)
 
+
+🔗 Paper: https://www.biorxiv.org/content/10.64898/2026.03.30.715237v1
 ## 🚀 **Quick Start**
 
 To easily test our trained models with custom dataset, we provide a custom, user-friendly notebook for Batch Inference, Zero-Shot, and Few-Shot testing.
@@ -169,6 +171,23 @@ If you find the BALM model and benchmark useful in your research, please cite ou
 	journal = {bioRxiv}
 }
 ```
+## 📝 Reference
+
+@article{gorantla2025learning,
+  title={Learning binding affinities via fine-tuning of protein and ligand language models},
+  author={Gorantla, Rohan and Gema, Aryo Pradipta and Yang, Ian Xi and Serrano-Morr{\'a}s, {\'A}lvaro and Suutari, Benjamin and Ju{\'a}rez-Jim{\'e}nez, Jordi and Mey, Antonia SJS},
+  journal={Journal of Chemical Information and Modeling},
+  volume={65},
+  number={22},
+  pages={12279--12291},
+  year={2025},
+  publisher={ACS Publications}
+}
+
+📫 Contact us
+Harshit Singh (hs4944@snu.edu.in)
+
+Rohan Gorantla (gorantlarohan@gmail.com)
 
 
 
