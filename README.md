@@ -166,9 +166,7 @@ If you find the BALM model and benchmark useful in your research, please cite ou
 	URL = {https://www.biorxiv.org/content/10.64898/2026.03.30.715237v1},
 	journal = {bioRxiv}
 }
-```
-## 📝 Reference to our previous work
-```
+
 @article{gorantla2025learning,
   title={Learning binding affinities via fine-tuning of protein and ligand language models},
   author={Gorantla, Rohan and Gema, Aryo Pradipta and Yang, Ian Xi and Serrano-Morr{\'a}s, {\'A}lvaro and Suutari, Benjamin and Ju{\'a}rez-Jim{\'e}nez, Jordi and Mey, Antonia SJS},
@@ -180,9 +178,10 @@ If you find the BALM model and benchmark useful in your research, please cite ou
   publisher={ACS Publications}
 }
 ```
+
 📫 Contact us
 
-Harshit Singh (hs4944@snu.edu.in)
+Harshit Singh (hs494@snu.edu.in)
 
 Rohan Gorantla (gorantlarohan@gmail.com)
 
