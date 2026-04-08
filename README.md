@@ -1,7 +1,5 @@
 # BALM-PPI: Explainable protein–protein binding affinity prediction via fine-tuning protein language models
 
-A comprehensive framework for protein-protein binding affinity prediction using transformer-based protein language models (PLMs) with advanced training strategies.
-
 Predicting protein–protein binding affinity from sequence alone remains a bottleneck for antibody optimization, biologics design and large-scale affinity modelling. Structure-based methods achieve high accuracy but cannot scale when complex structures are unavailable. Here, we present a framework that reframes affinity prediction as metric learning: two proteins are projected into a shared latent space in which cosine similarity directly correlates with experimental binding affinity, and the protein language model encoder is adapted through parameter-efficient fine-tuning (PEFT). On the PPB-Affinity benchmark, the model achieves Pearson r = 0.89 on a random split, generalises to evolutionarily distant proteins (r = 0.61 at <30% sequence identity) and surpasses structure-based deep learning baselines across biological subgroups, without any three-dimensional input. On the strictly de-overlapped AB-Bind dataset, few-shot adaptation with 30% of assay data (Pearson r = 0.756, RMSE = 0.688) outperforms methods trained on 90% of data; consistent gains are observed across nine diverse AbBiBench deep-mutational-scanning assays with 10–30% labelled variants. Residue-level explainability reveals that the model concentrates importance on interface-localised residues aligned with experimentally validated interaction hotspots across enzyme–inhibitor, and antibody–antigen systems. Together, these results establish a scalable, explainable and data-efficient route to protein-protein binding affinity prediction and therapeutic antibody optimisation from sequence alone.
 
 ## Overview
@@ -17,9 +15,7 @@ BALM-PPI provides three model architectures for predicting protein-protein bindi
 
 To easily test our trained models with custom dataset, we provide a custom, user-friendly notebook for Batch Inference, Zero-Shot, and Few-Shot testing.
 
-Navigate to the BALM-PPI/Notebooks directory.
-
-Open custom_notebook.ipynb.
+Navigate to the BALM-PPI/Notebooks directory and open custom_notebook.ipynb.
 
 
 - 🧬 **Custom dataset usage**: with zero- and few-shot settings: [custom_data_demo.ipynb](BALM-PPI/Notebooks/custom_notebook.ipynb)
@@ -36,7 +32,6 @@ Follow the interactive cells to load a pre-trained model (e.g., best_model_fold_
 ## Webtool
 
 We have also developed an interactive web application hosted on Hugging Face Spaces (https://huggingface.co/spaces/Harshit494/BALM-PPI), which enables users to access the full prediction and explainability pipeline without requiring any local computational setup.
-
 
 ### Setup
 
