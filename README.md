@@ -174,7 +174,7 @@ If you find the BALM model and benchmark useful in your research, please cite ou
 }
 ```
 
-📫 Contact us
+## 📫 Contact us
 
 Harshit Singh (hs494@snu.edu.in)
 
